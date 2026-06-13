@@ -14,5 +14,6 @@ namespace SlambookBackend.Models
         [Column(TypeName = "mediumblob")]
         public byte[]? ProfilePicture { get; set; }
         public int Status { get; set; }
+        public int LoginCount { get; set; }
     }
 }

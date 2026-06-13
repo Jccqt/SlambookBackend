@@ -6,5 +6,6 @@ namespace SlambookBackend.Interfaces
     public interface IProfileRepository
     {
         Task<ServiceResponse<List<MiniProfileDTO>>> GetAllProfiles(int count);
+        Task<ServiceResponse<MiniProfileDTO>> GetProfileByUsername(string username);
     }
 }

@@ -45,5 +45,34 @@ namespace SlambookBackend.Repository
 
             return response;
         }
+
+        public async Task<ServiceResponse<MiniProfileDTO>> GetProfileByUsername(string username)
+        {
+            var response = new ServiceResponse<MiniProfileDTO>();
+
+            var profile = await _db.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Username == username);
+
+            if(profile != null)
+            {
+                response.Success = true;
+                response.Message = "Profile found.";
+                response.Data = new MiniProfileDTO
+                {
+                    Id = profile.Id,
+                    FirstName = profile.FirstName,
+                    LastName = profile.LastName,
+                    Username = profile.Username,
+                    ProfilePicture = $"/api/users/{profile.Id}/profile-picture"
+                };
+            }
+            else
+            {
+                response.Message = "No profile found.";
+            }
+
+            return response;
+        }
     }
 }

@@ -4,6 +4,7 @@ using SlambookBackend.Context;
 using SlambookBackend.DTO.Users;
 using SlambookBackend.Interfaces;
 using SlambookBackend.Models;
+using SlambookBackend.Tools;
 
 namespace SlambookBackend.Repository
 {
@@ -72,6 +73,41 @@ namespace SlambookBackend.Repository
             {
                 response.Message = "User not found.";
             }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse> AddUser(AddUserDTO user)
+        {
+            var response = new ServiceResponse();
+
+            bool isExists = await _db.Users
+                .AnyAsync(u => u.Email == user.Email);
+
+            if (isExists)
+            {
+                response.Message = "Account already exists.";
+                return response;
+            }
+
+            string salt = Crypt.GenerateSalt();
+            string hashedPassword = Crypt.HashPassword(user.Password, salt);
+
+            var newUser = new Users
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Password = hashedPassword,
+                Salt = salt,
+                LoginCount = 0
+            };
+
+            _db.Users.Add(newUser);
+            await _db.SaveChangesAsync();
+
+            response.Success = true;
+            response.Message = "Account created successfully.";
 
             return response;
         }

@@ -23,5 +23,13 @@ namespace SlambookBackend.Controllers
 
             return result.Success ? Ok(result) : NotFound(result);
         }
+
+        [HttpGet("by-username/{username}")]
+        public async Task<ActionResult<ServiceResponse>> GetProfileByUsername([FromQuery] string username)
+        {
+            var result = await _profileRepo.GetProfileByUsername(username);
+
+            return result.Success ? Ok(result) : NotFound(result);
+        }
     }
 }

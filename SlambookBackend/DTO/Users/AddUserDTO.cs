@@ -11,6 +11,7 @@ namespace SlambookBackend.DTO.Users
         public string LastName { get; set; }
 
         [Required]
+        [EmailAddress(ErrorMessage = "Please provide a valid email format.")]
         public string Email { get; set; }
 
         [Required]

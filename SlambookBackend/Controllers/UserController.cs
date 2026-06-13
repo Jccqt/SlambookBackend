@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SlambookBackend.DTO.Users;
 using SlambookBackend.Interfaces;
 using SlambookBackend.Models;
 
@@ -35,6 +36,14 @@ namespace SlambookBackend.Controllers
             var result = await _userRepo.GetUserById(userId);
 
             return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse>> AddUser([FromBody] AddUserDTO user)
+        {
+            var result = await _userRepo.AddUser(user);
+
+            return result.Success ? Ok(result) : BadRequest(result);
         }
     }
 }

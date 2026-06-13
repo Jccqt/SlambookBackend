@@ -19,9 +19,22 @@ namespace SlambookBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<ServiceResponse>> GetAllUsers()
         {
-            var response = await _userRepo.GetAllUsers();
+            var result = await _userRepo.GetAllUsers();
 
-            return response.Success ? Ok(response) : NotFound(response);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpGet("userId")]
+        public async Task<ActionResult<ServiceResponse>> GetUserById([FromRoute] int userId)
+        {
+            if(userId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
+            }
+
+            var result = await _userRepo.GetUserById(userId);
+
+            return result.Success ? Ok(result) : NotFound(result);
         }
     }
 }

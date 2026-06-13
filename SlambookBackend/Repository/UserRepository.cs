@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SlambookBackend.Context;
 using SlambookBackend.DTO.Users;
 using SlambookBackend.Interfaces;
@@ -40,6 +41,36 @@ namespace SlambookBackend.Repository
             else
             {
                 response.Message = "No users found.";
+            }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<UserDTO>> GetUserById(int userId)
+        {
+            var response = new ServiceResponse<UserDTO>();
+
+            var user = await _db.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if(user != null)
+            {
+                response.Success = true;
+                response.Message = "User found.";
+                response.Data = new UserDTO
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Username = user.Username,
+                    Bio = user.Bio,
+                    ProfilePicture = $"/api/users/{user.Id}/profile-picture"
+                };
+            }
+            else
+            {
+                response.Message = "User not found.";
             }
 
             return response;

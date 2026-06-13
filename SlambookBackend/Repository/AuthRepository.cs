@@ -21,7 +21,7 @@ namespace SlambookBackend.Repository
 
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
 
-            if(user == null)
+            if(user == null || user.Status == 0)
             {
                 response.Message = "Login failed. User does not exists";
                 return response;

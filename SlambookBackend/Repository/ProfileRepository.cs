@@ -74,5 +74,29 @@ namespace SlambookBackend.Repository
 
             return response;
         }
+
+        public async Task<ServiceResponse> UpdateProfile(int userId, string username, string bio, byte[] profilePictureBytes)
+        {
+            var response = new ServiceResponse();
+
+            int affectedRow = await _db.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setter => setter
+                    .SetProperty(u => u.Username, username)
+                    .SetProperty(u => u.Bio, bio)
+                    .SetProperty(u => u.ProfilePicture, u => profilePictureBytes ?? u.ProfilePicture));
+
+            if(affectedRow == 0)
+            {
+                response.Message = "Failed to update profile.";
+            }
+            else
+            {
+                response.Success = true;
+                response.Message = "Profile updated successfully.";
+            }
+
+            return response;
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace SlambookBackend.Interfaces
     {
         Task<ServiceResponse<List<MiniProfileDTO>>> GetAllProfiles(int count);
         Task<ServiceResponse<MiniProfileDTO>> GetProfileByUsername(string username);
+        Task<ServiceResponse> UpdateProfile(int userId, string username, string bio, byte[] profilePictureBytes);
     }
 }

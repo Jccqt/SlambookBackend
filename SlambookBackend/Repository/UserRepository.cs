@@ -100,7 +100,8 @@ namespace SlambookBackend.Repository
                 Email = user.Email,
                 Password = hashedPassword,
                 Salt = salt,
-                LoginCount = 0
+                LoginCount = 0,
+                Status = 1
             };
 
             _db.Users.Add(newUser);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SlambookBackend.DTO.Profile;
 using SlambookBackend.Interfaces;
 using SlambookBackend.Models;
 
@@ -30,6 +31,29 @@ namespace SlambookBackend.Controllers
             var result = await _profileRepo.GetProfileByUsername(username);
 
             return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpPatch("update/{userId}")]
+        public async Task<ActionResult<ServiceResponse>> UpdateProfile([FromRoute] int userId, [FromForm] UpdateProfileDTO profile)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid model state." });
+            }
+
+            byte[] profilePictureBytes = null;
+            if (profile.ProfilePicture != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await profile.ProfilePicture.CopyToAsync(memoryStream);
+                    profilePictureBytes = memoryStream.ToArray();
+                }
+            }
+
+            var result = await _profileRepo.UpdateProfile(userId, profile.Username, profile.Bio, profilePictureBytes);
+
+            return result.Success ? Ok(result) : BadRequest(result);
         }
     }
 }

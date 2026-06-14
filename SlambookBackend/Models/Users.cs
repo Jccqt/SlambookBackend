@@ -33,5 +33,7 @@ namespace SlambookBackend.Models
 
         [Column("login_count")]
         public int LoginCount { get; set; }
+
+        public ICollection<Slambooks> Slambooks { get; set; }
     }
 }

@@ -45,5 +45,13 @@ namespace SlambookBackend.Controllers
 
             return result.Success ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPatch("{userId}/login-count")]
+        public async Task<ActionResult<ServiceResponse>> UpdateLoginCount([FromRoute] int userId)
+        {
+            var result = await _userRepo.UpdateLoginCount(userId);
+
+            return result.Success ? Ok(result) : NotFound(result);
+        }
     }
 }

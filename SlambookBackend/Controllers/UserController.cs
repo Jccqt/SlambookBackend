@@ -25,7 +25,7 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
-        [HttpGet("userId")]
+        [HttpGet("{userId}")]
         public async Task<ActionResult<ServiceResponse>> GetUserById([FromRoute] int userId)
         {
             if(userId <= 0)

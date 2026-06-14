@@ -53,24 +53,26 @@ namespace SlambookBackend.Repository
 
             var profile = await _db.Users
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Username == username);
-
-            if(profile != null)
-            {
-                response.Success = true;
-                response.Message = "Profile found.";
-                response.Data = new MiniProfileDTO
+                .Where(p => p.Username == username)
+                .Select(p => new MiniProfileDTO
                 {
-                    Id = profile.Id,
-                    FirstName = profile.FirstName,
-                    LastName = profile.LastName,
-                    Username = profile.Username,
-                    ProfilePicture = $"/api/users/{profile.Id}/profile-picture"
-                };
+                    Id = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Username = p.Username,
+                    ProfilePicture = $"/api/users/{p.Id}/profile-picture",
+                    SlambookCount = p.Slambooks.Count()
+                }).FirstOrDefaultAsync();
+
+            if (profile == null)
+            {
+                response.Message = "No profile found.";
             }
             else
             {
-                response.Message = "No profile found.";
+                response.Success = true;
+                response.Message = "Profile found.";
+                response.Data = profile; 
             }
 
             return response;

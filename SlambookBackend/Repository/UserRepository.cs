@@ -112,5 +112,27 @@ namespace SlambookBackend.Repository
 
             return response;
         }
+
+        public async Task<ServiceResponse> UpdateLoginCount(int userId)
+        {
+            var response = new ServiceResponse();
+
+            int affectedRows = await _db.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setter => setter
+                    .SetProperty(u => u.LoginCount, u => u.LoginCount + 1));
+
+            if (affectedRows == 0)
+            {
+                response.Message = "Failed to update login count. User not found.";
+            }
+            else
+            {
+                response.Success = true;
+                response.Message = "Successfully updated login count.";
+            }
+
+            return response;
+        }
     }
 }

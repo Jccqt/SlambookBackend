@@ -38,6 +38,19 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        [HttpGet("{userId}/username")]
+        public async Task<ActionResult<ServiceResponse>> GetUsernameById([FromRoute] int userId)
+        {
+            if(userId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
+            }
+
+            var result = await _userRepo.GetUsernameById(userId);
+
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
         [HttpPost]
         public async Task<ActionResult<ServiceResponse>> AddUser([FromBody] AddUserDTO user)
         {

@@ -1,9 +1,10 @@
-﻿using SlambookBackend.Models;
+﻿using SlambookBackend.DTO.Auth;
+using SlambookBackend.Models;
 
 namespace SlambookBackend.Interfaces
 {
     public interface IAuthRepository
     {
-        Task<ServiceResponse> Login(string email, string password);
+        Task<ServiceResponse<LoginResponseDTO>> Login(string email, string password);
     }
 }

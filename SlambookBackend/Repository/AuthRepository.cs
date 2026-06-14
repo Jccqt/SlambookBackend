@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SlambookBackend.Context;
+using SlambookBackend.DTO.Auth;
 using SlambookBackend.Interfaces;
 using SlambookBackend.Models;
 using SlambookBackend.Tools;
@@ -15,9 +16,9 @@ namespace SlambookBackend.Repository
             _db = db;
         }
 
-        public async Task<ServiceResponse> Login(string email, string password)
+        public async Task<ServiceResponse<LoginResponseDTO>> Login(string email, string password)
         {
-            var response = new ServiceResponse();
+            var response = new ServiceResponse<LoginResponseDTO>();
 
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
 
@@ -37,6 +38,11 @@ namespace SlambookBackend.Repository
 
             response.Success = true;
             response.Message = "Login successful.";
+            response.Data = new LoginResponseDTO
+            {
+                Id = user.Id,
+                LoginCount = user.LoginCount
+            };
 
             return response;
         }

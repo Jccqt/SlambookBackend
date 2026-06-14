@@ -17,5 +17,7 @@ namespace SlambookBackend.Models
 
         [Column("date_created")]
         public DateOnly CreatedDate { get; set; }
+
+        public Users? Creator { get; set; }
     }
 }

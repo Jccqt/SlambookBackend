@@ -77,6 +77,30 @@ namespace SlambookBackend.Repository
             return response;
         }
 
+        public async Task<ServiceResponse<string>> GetUsernameById(int userId)
+        {
+            var response = new ServiceResponse<string>();
+
+            var username = await _db.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .Select(u => u.Username)
+                .FirstOrDefaultAsync();
+
+            if (!string.IsNullOrEmpty(username))
+            {
+                response.Success = true;
+                response.Message = "User found.";
+                response.Data = username;
+            }
+            else
+            {
+                response.Message = "User not found.";
+            }
+
+            return response;
+        }
+
         public async Task<ServiceResponse> AddUser(AddUserDTO user)
         {
             var response = new ServiceResponse();

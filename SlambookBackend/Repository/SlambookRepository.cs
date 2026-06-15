@@ -29,7 +29,8 @@ namespace SlambookBackend.Repository
                                      .SelectMany(q => q.Answers)
                                      .Select(a => a.ResponderId)
                                      .Distinct()
-                                     .Count()
+                                     .Count(),
+                    CreatedDate = s.CreatedDate
                 });
 
             if(count > 0)

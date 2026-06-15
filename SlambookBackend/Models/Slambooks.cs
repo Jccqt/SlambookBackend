@@ -19,5 +19,7 @@ namespace SlambookBackend.Models
         public DateOnly CreatedDate { get; set; }
 
         public Users? Creator { get; set; }
+        
+        public ICollection<Questions> Questions { get; set; } = new List<Questions>();
     }
 }

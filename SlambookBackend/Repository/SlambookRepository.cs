@@ -16,7 +16,7 @@ namespace SlambookBackend.Repository
             _db = db;
         }
 
-        public async Task<ServiceResponse<List<SlambookDTO>>> GetAllSlambooks(int count)
+        public async Task<ServiceResponse<List<SlambookDTO>>> GetAllSlambooks(int count, int userId)
         {
             var response = new ServiceResponse<List<SlambookDTO>>();
 
@@ -29,9 +29,10 @@ namespace SlambookBackend.Repository
             FROM Slambooks s
             LEFT JOIN Questions q ON s.Id = q.slambook_id
             LEFT JOIN Answers a ON q.Id = a.question_id
+            WHERE s.creator_id = {0}
             GROUP BY s.Id, s.title, s.date_created";
 
-            var query = _db.Database.SqlQueryRaw<SlambookDTO>(sql);
+            var query = _db.Database.SqlQueryRaw<SlambookDTO>(sql, userId);
 
             if (count > 0)
             {

@@ -5,7 +5,7 @@ using SlambookBackend.Models;
 
 namespace SlambookBackend.Controllers
 {
-    [Route("api/user/{userId}/slambook")]
+    [Route("api/slambook")]
     [ApiController]
     public class SlambookController : ControllerBase
     {
@@ -18,7 +18,7 @@ namespace SlambookBackend.Controllers
 
         [HttpGet]
         public async Task<ActionResult<ServiceResponse>> GetAllSlambooks(
-            [FromRoute] int userId,
+            [FromQuery] int userId,
             [FromQuery] int count)
         {
             if(userId <= 0)
@@ -26,7 +26,7 @@ namespace SlambookBackend.Controllers
                 return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
             }
 
-            var results = await _slambookRepo.GetAllSlambooks(count);
+            var results = await _slambookRepo.GetAllSlambooks(count, userId);
 
             return results.Success ? Ok(results) : NotFound(results);
         }

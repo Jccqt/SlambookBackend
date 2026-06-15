@@ -59,44 +59,46 @@ namespace SlambookBackend.Repository
         {
             var response = new ServiceResponse<SlambookDetailsDTO>();
 
-            var slambook = await _db.Slambooks
+            var slambookDto = await _db.Slambooks
                 .Where(s => s.Id == slambookId)
                 .Select(s => new SlambookDetailsDTO
                 {
                     Id = s.Id,
                     Title = s.Title,
                     Description = s.Description,
-                    CreatedDate = s.CreatedDate,
+                    CreatedDate = s.CreatedDate
+                })
+                .FirstOrDefaultAsync();
 
-                    Responses = s.Questions
-                        .SelectMany(q => q.Answers)
-                        .Select(a => a.Responder)
-                        .Distinct()
-                        .Select(u => new MiniProfileDTO
-                        {
-                            Id = u.Id,
-                            FirstName = u.FirstName,
-                            LastName = u.LastName,
-                            Username = u.Username,
-                            ProfilePicture = $"/api/users/{u.Id}/profile-picture",
-                            SlambookCount = _db.Answers
-                            .Where(a => a.ResponderId == u.Id)
-                            .Select(a => a.Question!.SlambookId)
-                            .Distinct()
-                            .Count()
-                        }).ToList()
-                }).FirstOrDefaultAsync();
-
-            if(slambook != null)
-            {
-                response.Success = true;
-                response.Message = "Slambook details found.";
-                response.Data = slambook;
-            }
-            else
+            if (slambookDto == null)
             {
                 response.Message = "Slambook details not found.";
+                response.Success = false;
+                return response;
             }
+
+            var responders = await _db.Users
+                .Where(u => _db.Answers.Any(a => a.Question!.SlambookId == slambookId && a.ResponderId == u.Id))
+                .Select(u => new MiniProfileDTO
+                {
+                    Id = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Username = u.Username,
+                    ProfilePicture = $"/api/users/{u.Id}/profile-picture",
+                    SlambookCount = _db.Answers
+                        .Where(ans => ans.ResponderId == u.Id)
+                        .Select(ans => ans.Question!.SlambookId)
+                        .Distinct()
+                        .Count()
+                })
+                .ToListAsync();
+
+            slambookDto.Responses = responders;
+
+            response.Success = true;
+            response.Message = "Slambook details found.";
+            response.Data = slambookDto;
 
             return response;
         }

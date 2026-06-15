@@ -11,5 +11,8 @@ namespace SlambookBackend.Models
 
         [Column("question_text")]
         public string QuestionText { get; set; } = string.Empty;
+
+        public Slambooks? Slambook { get; set; }
+        public ICollection<Answers> Answers { get; set; } = new List<Answers>();
     }
 }

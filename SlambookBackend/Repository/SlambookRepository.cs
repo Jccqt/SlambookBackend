@@ -21,19 +21,18 @@ namespace SlambookBackend.Repository
         {
             var response = new ServiceResponse<List<SlambookDTO>>();
 
-            var sql = @"
-            SELECT 
-                s.Id, 
-                s.title AS Title, 
-                s.date_created AS CreatedDate, 
-                CAST(COUNT(DISTINCT a.responder_id) AS SIGNED) AS ResponseCount
-            FROM Slambooks s
-            LEFT JOIN Questions q ON s.Id = q.slambook_id
-            LEFT JOIN Answers a ON q.Id = a.question_id
-            WHERE s.creator_id = {0}
-            GROUP BY s.Id, s.title, s.date_created";
-
-            var query = _db.Database.SqlQueryRaw<SlambookDTO>(sql, userId);
+            var query = _db.Database.SqlQuery<SlambookDTO>($@"
+        SELECT 
+            s.Id, 
+            s.title AS Title, 
+            s.date_created AS CreatedDate, 
+            CAST(COUNT(DISTINCT a.responder_id) AS SIGNED) AS ResponseCount
+        FROM Slambooks s
+        LEFT JOIN Questions q ON s.Id = q.slambook_id
+        LEFT JOIN Answers a ON q.Id = a.question_id AND a.status = 1
+        WHERE s.creator_id = {userId}
+        GROUP BY s.Id, s.title, s.date_created
+            ");
 
             if (count > 0)
             {

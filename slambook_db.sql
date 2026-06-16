@@ -69,7 +69,6 @@ CREATE TABLE `questions` (
 
 /*Data for the table `questions` */
 
-
 /*Table structure for table `answers` */
 
 DROP TABLE IF EXISTS `answers`;
@@ -79,6 +78,7 @@ CREATE TABLE `answers` (
   `question_id` int(11) DEFAULT NULL,
   `responder_id` int(11) DEFAULT NULL,
   `answer_text` varchar(255) DEFAULT NULL,
+  `status` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `question_id` (`question_id`),
   KEY `responder_id` (`responder_id`),
@@ -87,6 +87,7 @@ CREATE TABLE `answers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `answers` */
+
 
 insert  into `users`(`id`,`first_name`,`last_name`,`username`,`password`,`salt`,`email`,`bio`,`profile_picture`,`status`,`login_count`) values 
 (1,'Jc','Calayag','Jc','71da861781811c2b391f74042d6c49bf828db4195e1850c079ae14e8cf2e7cd9','dDsevYGgSWcIlRjIJWmTqQ==','jcbcalayag@gmail.com','Time is gold when watching bold','    \0JFIF\0\0H\0H\0\0  \0C\0  \n\n\n		\n\Z%\Z# , #&\')*)-0-(0%()(  \0C   \n\n\n\n(\Z\Z((((((((((((((((((((((((((((((((((((((((((((((((((  \0  \"\0  \0\0\0\0\0\0\0\0\0\0\0\0\0   \0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0  \0\0\0\0  o   J xQ  \0\0{2`ˈσ6	~}y%ŕ \0# #  $ TS6  \\YLYqM$ K ;  \0   ri՛  \"   ϯF6lF|  >K = >z L  Gx b\\ \' w[ u@p g  s21 #d|=L , [iV ֢    ?  y s \'A A6   M r v \0\0   =$ { 8 \0\0  R9 ɇ6	~}y$`    \"< < D<       x :  l }H \0   / P  膵     Y  $B  ~  1X Y \0_o^D Sέ  f:  k ǻ  0 Q f\"      1X M 

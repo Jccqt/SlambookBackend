@@ -7,5 +7,6 @@ namespace SlambookBackend.Interfaces
     {
         Task<ServiceResponse<List<SlambookDTO>>> GetAllSlambooks(int count, int userId);
         Task<ServiceResponse<SlambookDetailsDTO>> GetSlambookDetails(int slambookId);
+        Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook);
     }
 }

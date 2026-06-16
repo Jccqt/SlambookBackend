@@ -72,7 +72,7 @@ namespace SlambookBackend.Repository
 
             if (slambookDto == null)
             {
-                response.Message = "Slambook details not found.";
+                response.Message = "Slambo  ok details not found.";
                 response.Success = false;
                 return response;
             }
@@ -99,6 +99,37 @@ namespace SlambookBackend.Repository
             response.Success = true;
             response.Message = "Slambook details found.";
             response.Data = slambookDto;
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook)
+        {
+            var response = new ServiceResponse<int>();
+
+            if(slambook == null)
+            {
+                response.Message = "Invalid slambook data.";
+                return response;
+            }
+
+            var newSlambook = new Slambooks
+            {
+                CreatorId = slambook.CreatorId,
+                Title = slambook.Title,
+                Description = slambook.Description,
+                CreatedDate = DateOnly.FromDateTime(DateTime.UtcNow),
+
+                Questions = slambook.QuestionText.Select(text => new Questions { QuestionText = text }).ToList()
+            };
+
+            _db.Slambooks.Add(newSlambook);
+
+            await _db.SaveChangesAsync();
+
+            response.Success = true;
+            response.Message = "Slambook created successfully.";
+            response.Data = newSlambook.Id;
 
             return response;
         }

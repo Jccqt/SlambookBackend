@@ -71,6 +71,21 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        [HttpGet("{slambookId}/response/{responderId}")]
+        public async Task<ActionResult<ServiceResponse>> GetResponderAnswers(
+            [FromRoute] int slambookId,
+            [FromRoute] int responderId)
+        {
+            if(slambookId <= 0 || responderId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
+            }
+
+            var result = await _slambookRepo.GetResponderAnswers(slambookId, responderId);
+
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
         [HttpPost]
         public async Task<ActionResult<ServiceResponse>> CreateSlambook([FromBody] CreateSlambookDTO slambook)
         {

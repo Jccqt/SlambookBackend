@@ -45,6 +45,19 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        [HttpGet("{slambookId}/responders")]
+        public async Task<ActionResult<ServiceResponse>> GetSlambookResponders([FromRoute] int slambookId)
+        {
+            if(slambookId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid slambook ID." });
+            }
+
+            var result = await _slambookRepo.GetSlambookResponders(slambookId);
+
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
         [HttpGet("{slambookId}/questions")]
         public async Task<ActionResult<ServiceResponse>> GetSlambookQuestions([FromRoute] int slambookId)
         {

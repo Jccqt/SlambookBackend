@@ -156,6 +156,51 @@ namespace SlambookBackend.Repository
             return response;
         }
 
+        public async Task<ServiceResponse<ResponderSlambookResultDTO>> GetResponderAnswers(int slambookId, int responderId)
+        {
+            var response = new ServiceResponse<ResponderSlambookResultDTO>();
+
+            var profile = await _db.Users
+                .Where(u => u.Id == responderId)
+                .Select(u => new MiniProfileDTO
+                {
+                    Id = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Username = u.Username,
+                    ProfilePicture = $"/api/users/profile/{u.Id}/profile-picture",
+                    SlambookCount = u.Slambooks.Count()
+                }).FirstOrDefaultAsync();
+
+            if(profile == null)
+            {
+                response.Message = "User not found.";
+                return response;
+            }
+
+            var answers = await _db.Questions
+                .Where(q => q.SlambookId == slambookId)
+                .Select(q => new QuestionAnswerDTO
+                {
+                    QuestionId = q.Id,
+                    QuestionText = q.QuestionText,
+                    AnswerText = q.Answers
+                        .Where(a => a.ResponderId == responderId)
+                        .Select(a => a.AnswerText)
+                        .FirstOrDefault()
+                }).ToListAsync();
+
+            response.Success = true;
+            response.Message = "Responder's answer found.";
+            response.Data = new ResponderSlambookResultDTO
+            {
+                Responder = profile,
+                Answers = answers
+            };
+
+            return response;
+        }
+
         public async Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook)
         {
             var response = new ServiceResponse<int>();

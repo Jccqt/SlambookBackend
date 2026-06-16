@@ -107,15 +107,15 @@ namespace SlambookBackend.Controllers
         /// </summary>
         [HttpGet("{slambookId}/ownership")]
         public async Task<ActionResult<ServiceResponse>> CheckSlambookOwnership(
-            [FromRoute] int slambookid,
+            [FromRoute] int slambookId,
             [FromQuery] int responderId)
         {
-            if(slambookid <= 0 || responderId <= 0)
+            if(slambookId <= 0 || responderId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
             }
 
-            var result = await _slambookRepo.CheckSlambookOwnership(slambookid, responderId);
+            var result = await _slambookRepo.CheckSlambookOwnership(slambookId, responderId);
 
             return Ok(result);
         }

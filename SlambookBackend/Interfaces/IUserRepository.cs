@@ -10,5 +10,6 @@ namespace SlambookBackend.Interfaces
         Task<ServiceResponse<string>> GetUsernameById(int userId);
         Task<ServiceResponse> AddUser(AddUserDTO user);
         Task<ServiceResponse> UpdateLoginCount(int userId);
+        Task<ServiceResponse> UpdatePassword(int userId, UpdatePasswordDTO password);
     }
 }

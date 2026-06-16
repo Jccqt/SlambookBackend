@@ -158,5 +158,46 @@ namespace SlambookBackend.Repository
 
             return response;
         }
+
+        public async Task<ServiceResponse> UpdatePassword(int userId, UpdatePasswordDTO password)
+        {
+            var response = new ServiceResponse();
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                response.Message = "User not found.";
+                return response;
+            }
+
+            string hashedOldPassword = Crypt.HashPassword(password.OldPassword, user.Salt);
+
+            if (user.Password != hashedOldPassword)
+            {
+                response.Message = "Invalid old password.";
+                return response;
+            }
+
+            string newSalt = Crypt.GenerateSalt();
+            string hashedNewPassword = Crypt.HashPassword(password.NewPassword, newSalt);
+
+            user.Password = hashedNewPassword;
+            user.Salt = newSalt;
+
+            int affectedRows = await _db.SaveChangesAsync();
+
+            if (affectedRows == 0)
+            {
+                response.Message = "Failed to change password.";
+            }
+            else
+            {
+                response.Success = true;
+                response.Message = "Password changed successfully.";
+            }
+
+            return response;
+        }
     }
 }

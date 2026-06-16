@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SlambookBackend.DTO.Slambook;
 using SlambookBackend.Interfaces;
 using SlambookBackend.Models;
 
@@ -42,6 +43,14 @@ namespace SlambookBackend.Controllers
             var result = await _slambookRepo.GetSlambookDetails(slambookId);
 
             return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse>> CreateSlambook([FromBody] CreateSlambookDTO slambook)
+        {
+            var result = await _slambookRepo.CreateSlambook(slambook);
+
+            return result.Success ? Ok(result) : BadRequest(result);
         }
     }
 }

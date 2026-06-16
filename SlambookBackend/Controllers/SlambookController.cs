@@ -125,7 +125,7 @@ namespace SlambookBackend.Controllers
         }
 
         /// <summary>
-        /// Used for removing a response for a specific user in a specific slambook.
+        /// Used for removing a response of a specific user in a specific slambook.
         /// </summary>
         [HttpPatch("{slambookId}/remove/{responderId}")]
         public async Task<ActionResult<ServiceResponse>> RemoveUserResponse(

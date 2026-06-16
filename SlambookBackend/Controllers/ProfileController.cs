@@ -64,7 +64,7 @@ namespace SlambookBackend.Controllers
                 }
             }
 
-            var result = await _profileRepo.UpdateProfile(userId, profile.Username, profile.Bio, profilePictureBytes);
+            var result = await _profileRepo.UpdateProfile(userId, profile.FirstName, profile.LastName, profile.Username, profile.Bio, profilePictureBytes);
 
             return result.Success ? Ok(result) : BadRequest(result);
         }

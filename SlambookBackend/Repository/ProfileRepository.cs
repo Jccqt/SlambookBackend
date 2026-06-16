@@ -101,13 +101,15 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> UpdateProfile(int userId, string username, string bio, byte[] profilePictureBytes)
+        public async Task<ServiceResponse> UpdateProfile(int userId, string firstName, string lastName, string username, string bio, byte[] profilePictureBytes)
         {
             var response = new ServiceResponse();
 
             int affectedRow = await _db.Users
                 .Where(u => u.Id == userId)
                 .ExecuteUpdateAsync(setter => setter
+                    .SetProperty(u => u.FirstName, firstName)
+                    .SetProperty(u => u.LastName, lastName)
                     .SetProperty(u => u.Username, username)
                     .SetProperty(u => u.Bio, bio)
                     .SetProperty(u => u.ProfilePicture, u => profilePictureBytes ?? u.ProfilePicture));

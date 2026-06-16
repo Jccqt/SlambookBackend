@@ -17,6 +17,9 @@ namespace SlambookBackend.Controllers
             _slambookRepo = slambookRepo;
         }
 
+        /// <summary>
+        /// Retrieves all slambooks for a specific user. Count can be set to 0 if needed to retrieves all slambooks.
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<ServiceResponse>> GetAllSlambooks(
             [FromQuery] int userId,
@@ -32,6 +35,9 @@ namespace SlambookBackend.Controllers
             return results.Success ? Ok(results) : NotFound(results);
         }
 
+        /// <summary>
+        /// Retrieves slambook details. Can also used this along with GetSlambookResponders to retrieve responders on this specific slambook.
+        /// </summary>
         [HttpGet("{slambookId}")]
         public async Task<ActionResult<ServiceResponse>> GetSlambookDetails([FromRoute] int slambookId)
         {
@@ -45,6 +51,9 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        /// <summary>
+        /// Retrieves responders list of specific slambook. This will return mini profiles similar to GetAllProfiles in ProfileController.
+        /// </summary>
         [HttpGet("{slambookId}/responders")]
         public async Task<ActionResult<ServiceResponse>> GetSlambookResponders([FromRoute] int slambookId)
         {
@@ -58,6 +67,9 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        /// <summary>
+        /// Retrieves slambook questions. This will return a list of questions and can be used for displaying the questions when giving response to the slambook.
+        /// </summary>
         [HttpGet("{slambookId}/questions")]
         public async Task<ActionResult<ServiceResponse>> GetSlambookQuestions([FromRoute] int slambookId)
         {
@@ -71,6 +83,10 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        /// <summary>
+        /// Retrieves responder's answers. This can be used for viewing the answers of a responder for a spefiic slambook.
+        /// A mini profile of the responder, and answers and questions will be returned here
+        /// </summary>
         [HttpGet("{slambookId}/response/{responderId}")]
         public async Task<ActionResult<ServiceResponse>> GetResponderAnswers(
             [FromRoute] int slambookId,
@@ -86,6 +102,9 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        /// <summary>
+        /// Used for creating a slambook.
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<ServiceResponse>> CreateSlambook([FromBody] CreateSlambookDTO slambook)
         {
@@ -94,6 +113,9 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        /// <summary>
+        /// Used for submitting answers for a specific slambook.
+        /// </summary>
         [HttpPost("answers")]
         public async Task<ActionResult<ServiceResponse>> SubmitAnswers([FromBody] SubmitAnwersDTO answers)
         {
@@ -102,6 +124,9 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        /// <summary>
+        /// Used for removing a response for a specific user in a specific slambook.
+        /// </summary>
         [HttpPatch("{slambookId}/remove/{responderId}")]
         public async Task<ActionResult<ServiceResponse>> RemoveUserResponse(
             [FromRoute] int slambookId,

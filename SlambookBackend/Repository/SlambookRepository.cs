@@ -133,5 +133,32 @@ namespace SlambookBackend.Repository
 
             return response;
         }
+
+        public async Task<ServiceResponse> SubmitAnswers(SubmitAnwersDTO answers)
+        {
+            var response = new ServiceResponse();
+
+            if (answers == null || !answers.Answers.Any())
+            {
+                response.Message = "No answers provided.";
+                return response;
+            }
+
+            var newAnswers = answers.Answers.Select(a => new Answers
+            {
+                QuestionId = a.QuestionId,
+                ResponderId = answers.ResponderId,
+                AnswerText = a.AnswerText
+            }).ToList();
+
+            _db.Answers.AddRange(newAnswers);
+
+            await _db.SaveChangesAsync();
+
+            response.Success = true;
+            response.Message = "Answers submitted successfully.";
+
+            return response;
+        }
     }
 }

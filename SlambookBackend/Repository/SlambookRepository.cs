@@ -103,6 +103,37 @@ namespace SlambookBackend.Repository
             return response;
         }
 
+        public async Task<ServiceResponse<SlambookQuestionsDTO>> GetSlambookQuestions(int slambookId)
+        {
+            var response = new ServiceResponse<SlambookQuestionsDTO>();
+
+            var slambookQuestions = await _db.Slambooks
+                .Where(s => s.Id == slambookId)
+                .Select(s => new SlambookQuestionsDTO
+                {
+                    SlambookId = s.Id,
+                    Title = s.Title,
+                    Questions = s.Questions.Select(q => new QuestionItemDTO
+                    {
+                        QuestionId = q.Id,
+                        QuestionText = q.QuestionText
+                    }).ToList()
+                }).FirstOrDefaultAsync();
+
+            if(slambookQuestions == null)
+            {
+                response.Message = "Slambook not found.";
+            }
+            else
+            {
+                response.Success = true;
+                response.Message = "Slambook questions found.";
+                response.Data = slambookQuestions;
+            }
+
+            return response;
+        }
+
         public async Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook)
         {
             var response = new ServiceResponse<int>();

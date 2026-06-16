@@ -10,5 +10,6 @@ namespace SlambookBackend.Interfaces
         Task<ServiceResponse<SlambookQuestionsDTO>> GetSlambookQuestions(int slambookId);
         Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook);
         Task<ServiceResponse> SubmitAnswers(SubmitAnwersDTO answers);
+        Task<ServiceResponse> RemoveUserResponse(int slambookId, int responderId);
     }
 }

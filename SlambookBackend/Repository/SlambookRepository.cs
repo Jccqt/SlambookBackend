@@ -191,5 +191,33 @@ namespace SlambookBackend.Repository
 
             return response;
         }
+
+        public async Task<ServiceResponse> RemoveUserResponse(int slambookId, int responderId)
+        {
+            var response = new ServiceResponse();
+
+            var userAnswers = await _db.Answers
+                .Include(a => a.Question)
+                .Where(a => a.ResponderId == responderId && a.Question.SlambookId == slambookId && a.Status == 1)
+                .ToListAsync();
+
+            if (!userAnswers.Any())
+            {
+                response.Message = "No active response found for this user.";
+                return response;
+            }
+
+            foreach(var answer in userAnswers)
+            {
+                answer.Status = 0;
+            }
+
+            await _db.SaveChangesAsync();
+
+            response.Success = true;
+            response.Message = "User's response has been removed.";
+
+            return response;
+        }
     }
 }

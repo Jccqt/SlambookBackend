@@ -85,6 +85,47 @@ namespace SlambookBackend.Repository
             return response;
         }
 
+        public async Task<ServiceResponse<List<MiniProfileDTO>>> GetSlambookResponders(int slambookId)
+        {
+            var response = new ServiceResponse<List<MiniProfileDTO>>();
+
+            var activeResponderIds = await _db.Answers
+                .AsNoTracking()
+                .Where(a => a.Question!.SlambookId == slambookId && a.Status == 1)
+                .Select(a => a.ResponderId)
+                .Distinct()
+                .ToListAsync();
+
+            if (!activeResponderIds.Any())
+            {
+                response.Success = true;
+                response.Message = "No responders found.";
+                response.Data = new List<MiniProfileDTO>();
+                return response;
+            }
+
+            var profiles = await _db.Users
+                .AsNoTracking()
+                .Where(p => activeResponderIds.Contains(p.Id)) 
+                .Select(p => new MiniProfileDTO
+                {
+                    Id = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Username = p.Username,
+                    ProfilePicture = $"/api/users/profile/{p.Id}/profile-picture",
+
+                    SlambookCount = p.Slambooks.Count()
+                })
+                .ToListAsync();
+
+            response.Success = true;
+            response.Message = $"Found {profiles.Count} responders.";
+            response.Data = profiles;
+
+            return response;
+        }
+
         public async Task<ServiceResponse<SlambookQuestionsDTO>> GetSlambookQuestions(int slambookId)
         {
             var response = new ServiceResponse<SlambookQuestionsDTO>();

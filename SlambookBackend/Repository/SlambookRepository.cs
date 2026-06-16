@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 using SlambookBackend.Context;
 using SlambookBackend.DTO.Profile;
 using SlambookBackend.DTO.Slambook;
@@ -72,29 +73,10 @@ namespace SlambookBackend.Repository
 
             if (slambookDto == null)
             {
-                response.Message = "Slambo  ok details not found.";
+                response.Message = "Slambook details not found.";
                 response.Success = false;
                 return response;
             }
-
-            var responders = await _db.Users
-                .Where(u => _db.Answers.Any(a => a.Question!.SlambookId == slambookId && a.ResponderId == u.Id))
-                .Select(u => new MiniProfileDTO
-                {
-                    Id = u.Id,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    Username = u.Username,
-                    ProfilePicture = $"/api/users/profile/{u.Id}/profile-picture",
-                    SlambookCount = _db.Answers
-                        .Where(ans => ans.ResponderId == u.Id)
-                        .Select(ans => ans.Question!.SlambookId)
-                        .Distinct()
-                        .Count()
-                })
-                .ToListAsync();
-
-            slambookDto.Responses = responders;
 
             response.Success = true;
             response.Message = "Slambook details found.";

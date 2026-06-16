@@ -102,6 +102,21 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        [HttpGet("{slambookId}/ownership")]
+        public async Task<ActionResult<ServiceResponse>> CheckSlambookOwnership(
+            [FromRoute] int slambookid,
+            [FromQuery] int responderId)
+        {
+            if(slambookid <= 0 || responderId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
+            }
+
+            var result = await _slambookRepo.CheckSlambookOwnership(slambookid, responderId);
+
+            return Ok(result);
+        }
+
         /// <summary>
         /// Used for creating a slambook.
         /// </summary>

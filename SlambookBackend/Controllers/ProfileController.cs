@@ -33,6 +33,19 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        [HttpGet("{userId}/profile-picture")]
+        public async Task<ActionResult<ServiceResponse>> GetProfilePictureBytes([FromRoute] int userId)
+        {
+            if(userId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
+            }
+
+            var result = await _profileRepo.GetProfilePictureBytes(userId);
+
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
         [HttpPatch("update/{userId}")]
         public async Task<ActionResult<ServiceResponse>> UpdateProfile([FromRoute] int userId, [FromForm] UpdateProfileDTO profile)
         {

@@ -201,6 +201,26 @@ namespace SlambookBackend.Repository
             return response;
         }
 
+        public async Task<ServiceResponse> CheckSlambookOwnership(int slambookId, int responderId)
+        {
+            var response = new ServiceResponse();
+
+            bool isOwner = await _db.Slambooks
+                .AnyAsync(s => s.Id == slambookId && s.CreatorId == responderId);
+
+            if (isOwner)
+            {
+                response.Success = true;
+                response.Message = "This user is the owner of this slambook.";
+            }
+            else
+            {
+                response.Message = "This user is not the owner of this slambook.";
+            }
+
+            return response;
+        }
+
         public async Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook)
         {
             var response = new ServiceResponse<int>();

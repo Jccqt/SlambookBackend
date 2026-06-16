@@ -102,6 +102,9 @@ namespace SlambookBackend.Controllers
             return result.Success ? Ok(result) : NotFound(result);
         }
 
+        /// <summary>
+        /// This can be used for checking if the user that is currently viewing a specific slambook details is the owner or not.
+        /// </summary>
         [HttpGet("{slambookId}/ownership")]
         public async Task<ActionResult<ServiceResponse>> CheckSlambookOwnership(
             [FromRoute] int slambookid,
@@ -113,6 +116,24 @@ namespace SlambookBackend.Controllers
             }
 
             var result = await _slambookRepo.CheckSlambookOwnership(slambookid, responderId);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// This can be used to check if the user has already been responded to a specific slambook.
+        /// </summary>
+        [HttpGet("{slambookId}/has-responded")]
+        public async Task<ActionResult<ServiceResponse>> CheckIfUserResponded(
+            [FromRoute] int slambookId,
+            [FromQuery] int responderId)
+        {
+            if (slambookId <= 0 || responderId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
+            }
+
+            var result = await _slambookRepo.CheckIfUserResponded(slambookId, responderId);
 
             return Ok(result);
         }

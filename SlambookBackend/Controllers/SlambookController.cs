@@ -73,5 +73,20 @@ namespace SlambookBackend.Controllers
 
             return result.Success ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPatch("{slambookId}/remove/{responderId}")]
+        public async Task<ActionResult<ServiceResponse>> RemoveUserResponse(
+            [FromRoute] int slambookId,
+            [FromRoute] int responderId)
+        {
+            if(slambookId <= 0 || responderId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
+            }
+
+            var result = await _slambookRepo.RemoveUserResponse(slambookId, responderId);
+
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

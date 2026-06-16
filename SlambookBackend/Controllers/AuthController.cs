@@ -18,6 +18,9 @@ namespace SlambookBackend.Controllers
             _authRepo = authRepo;
         }
 
+        /// <summary>
+        /// A simple login endpoint. Just need email and password.
+        /// </summary>
         [HttpPost("login")]
         public async Task<ActionResult<ServiceResponse>> Login([FromBody] LoginRequestDTO login)
         {

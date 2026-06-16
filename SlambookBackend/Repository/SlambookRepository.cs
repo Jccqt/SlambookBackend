@@ -85,7 +85,7 @@ namespace SlambookBackend.Repository
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     Username = u.Username,
-                    ProfilePicture = $"/api/users/{u.Id}/profile-picture",
+                    ProfilePicture = $"/api/users/profile/{u.Id}/profile-picture",
                     SlambookCount = _db.Answers
                         .Where(ans => ans.ResponderId == u.Id)
                         .Select(ans => ans.Question!.SlambookId)

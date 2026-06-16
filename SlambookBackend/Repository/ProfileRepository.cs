@@ -27,7 +27,7 @@ namespace SlambookBackend.Repository
                     FirstName = p.FirstName,
                     LastName = p.LastName,
                     Username = p.Username,
-                    ProfilePicture = $"/api/users/{p.Id}/profile-picture",
+                    ProfilePicture = $"/api/users/profile/{p.Id}/profile-picture",
                     SlambookCount = p.Slambooks.Count()
                 })
                 .Take(count)
@@ -60,7 +60,7 @@ namespace SlambookBackend.Repository
                     FirstName = p.FirstName,
                     LastName = p.LastName,
                     Username = p.Username,
-                    ProfilePicture = $"/api/users/{p.Id}/profile-picture",
+                    ProfilePicture = $"/api/users/profile/{p.Id}/profile-picture",
                     SlambookCount = p.Slambooks.Count()
                 }).FirstOrDefaultAsync();
 
@@ -74,6 +74,29 @@ namespace SlambookBackend.Repository
                 response.Message = "Profile found.";
                 response.Data = profile; 
             }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<byte[]>> GetProfilePictureBytes(int userId)
+        {
+            var response = new ServiceResponse<byte[]>();
+
+            var imageBytes = await _db.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .Select(u => u.ProfilePicture)
+                .FirstOrDefaultAsync();
+
+            if (imageBytes == null || imageBytes.Length == 0)
+            {
+                response.Message = "No profile picture found for this user.";
+                return response;
+            }
+
+            response.Success = true;
+            response.Message = "Profile picture retrieved successfully.";
+            response.Data = imageBytes;
 
             return response;
         }

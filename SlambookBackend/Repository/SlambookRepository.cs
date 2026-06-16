@@ -221,6 +221,28 @@ namespace SlambookBackend.Repository
             return response;
         }
 
+        public async Task<ServiceResponse> CheckIfUserResponded(int slambookId, int responderId)
+        {
+            var response = new ServiceResponse();
+
+            bool hasResponded = await _db.Answers
+                .AnyAsync(a => a.ResponderId == responderId
+                && a.Question.SlambookId == slambookId
+                && a.Status == 1);
+
+            if (hasResponded)
+            {
+                response.Success = true;
+                response.Message = "This user has already responded to this slambook.";
+            }
+            else
+            {
+                response.Message = "This user hasn't been responded to this slambook.";
+            }
+
+            return response;
+        }
+
         public async Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook)
         {
             var response = new ServiceResponse<int>();

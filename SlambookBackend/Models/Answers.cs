@@ -15,6 +15,9 @@ namespace SlambookBackend.Models
         [Column("answer_text")]
         public string AnswerText { get; set; } = string.Empty;
 
+        [Column("status")]
+        public int Status { get; set; } = 1;
+
         public Users? Responder { get; set; }
         public Questions? Question { get; set; }
     }

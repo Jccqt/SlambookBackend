@@ -52,5 +52,13 @@ namespace SlambookBackend.Controllers
 
             return result.Success ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPost("answers")]
+        public async Task<ActionResult<ServiceResponse>> SubmitAnswers([FromBody] SubmitAnwersDTO answers)
+        {
+            var result = await _slambookRepo.SubmitAnswers(answers);
+
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

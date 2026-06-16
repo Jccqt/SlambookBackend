@@ -28,7 +28,7 @@ namespace SlambookBackend.Controllers
         [HttpGet("{userId}")]
         public async Task<ActionResult<ServiceResponse>> GetUserById([FromRoute] int userId)
         {
-            if(userId <= 0)
+            if (userId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
             }
@@ -41,7 +41,7 @@ namespace SlambookBackend.Controllers
         [HttpGet("{userId}/username")]
         public async Task<ActionResult<ServiceResponse>> GetUsernameById([FromRoute] int userId)
         {
-            if(userId <= 0)
+            if (userId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
             }
@@ -65,6 +65,21 @@ namespace SlambookBackend.Controllers
             var result = await _userRepo.UpdateLoginCount(userId);
 
             return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpPatch("{userId}/password")]
+        public async Task<ActionResult<ServiceResponse>> UpdatePassword(
+            [FromRoute] int userId,
+            [FromBody] UpdatePasswordDTO password)
+        {
+            if(userId <= 0)
+            {
+                return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
+            }
+
+            var result = await _userRepo.UpdatePassword(userId, password);
+
+            return result.Success ? Ok(result) : BadRequest(result);
         }
     }
 }

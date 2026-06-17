@@ -17,7 +17,7 @@ namespace SlambookBackend.Repository
             _db = db;
         }
 
-        public async Task<ServiceResponse<List<UserDTO>>> GetAllUsers()
+        public async Task<ServiceResponse<List<UserDTO>>> GetAllUsers(CancellationToken ct)
         {
             var response = new ServiceResponse<List<UserDTO>>();
 
@@ -31,7 +31,7 @@ namespace SlambookBackend.Repository
                     Username = u.Username,
                     Bio = u.Bio,
                     ProfilePicture = $"/api/users/profile/{u.Id}/profile-picture"
-                }).ToListAsync();
+                }).ToListAsync(ct);
 
             if(users.Count > 0)
             {
@@ -47,13 +47,13 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<UserDTO>> GetUserById(int userId)
+        public async Task<ServiceResponse<UserDTO>> GetUserById(int userId, CancellationToken ct)
         {
             var response = new ServiceResponse<UserDTO>();
 
             var user = await _db.Users
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == userId);
+                .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
             if(user != null)
             {
@@ -77,7 +77,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<string>> GetUsernameById(int userId)
+        public async Task<ServiceResponse<string>> GetUsernameById(int userId, CancellationToken ct)
         {
             var response = new ServiceResponse<string>();
 
@@ -85,7 +85,7 @@ namespace SlambookBackend.Repository
                 .AsNoTracking()
                 .Where(u => u.Id == userId)
                 .Select(u => u.Username)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
 
             if (!string.IsNullOrEmpty(username))
             {
@@ -101,12 +101,12 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> AddUser(AddUserDTO user)
+        public async Task<ServiceResponse> AddUser(AddUserDTO user, CancellationToken ct)
         {
             var response = new ServiceResponse();
 
             bool isExists = await _db.Users
-                .AnyAsync(u => u.Email == user.Email);
+                .AnyAsync(u => u.Email == user.Email, ct);
 
             if (isExists)
             {
@@ -129,7 +129,7 @@ namespace SlambookBackend.Repository
             };
 
             _db.Users.Add(newUser);
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             response.Success = true;
             response.Message = "Account created successfully.";
@@ -137,14 +137,14 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> UpdateLoginCount(int userId)
+        public async Task<ServiceResponse> UpdateLoginCount(int userId, CancellationToken ct)
         {
             var response = new ServiceResponse();
 
             int affectedRows = await _db.Users
                 .Where(u => u.Id == userId)
                 .ExecuteUpdateAsync(setter => setter
-                    .SetProperty(u => u.LoginCount, u => u.LoginCount + 1));
+                    .SetProperty(u => u.LoginCount, u => u.LoginCount + 1), ct);
 
             if (affectedRows == 0)
             {
@@ -159,11 +159,11 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> UpdatePassword(int userId, UpdatePasswordDTO password)
+        public async Task<ServiceResponse> UpdatePassword(int userId, UpdatePasswordDTO password, CancellationToken ct)
         {
             var response = new ServiceResponse();
 
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
 
             if (user == null)
             {
@@ -185,7 +185,7 @@ namespace SlambookBackend.Repository
             user.Password = hashedNewPassword;
             user.Salt = newSalt;
 
-            int affectedRows = await _db.SaveChangesAsync();
+            int affectedRows = await _db.SaveChangesAsync(ct);
 
             if (affectedRows == 0)
             {

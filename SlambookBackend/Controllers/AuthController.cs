@@ -22,9 +22,9 @@ namespace SlambookBackend.Controllers
         /// A simple login endpoint. Just need email and password.
         /// </summary>
         [HttpPost("login")]
-        public async Task<ActionResult<ServiceResponse>> Login([FromBody] LoginRequestDTO login)
+        public async Task<ActionResult<ServiceResponse>> Login([FromBody] LoginRequestDTO login, CancellationToken ct)
         {
-            var result = await _authRepo.Login(login.Email, login.Password);
+            var result = await _authRepo.Login(login.Email, login.Password, ct);
 
             return result.Success ? Ok(result) : BadRequest(result);
         }

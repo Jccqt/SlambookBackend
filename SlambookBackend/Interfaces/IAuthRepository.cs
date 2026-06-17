@@ -5,6 +5,6 @@ namespace SlambookBackend.Interfaces
 {
     public interface IAuthRepository
     {
-        Task<ServiceResponse<LoginResponseDTO>> Login(string email, string password);
+        Task<ServiceResponse<LoginResponseDTO>> Login(string email, string password, CancellationToken ct = default);
     }
 }

@@ -16,11 +16,11 @@ namespace SlambookBackend.Repository
             _db = db;
         }
 
-        public async Task<ServiceResponse<LoginResponseDTO>> Login(string email, string password)
+        public async Task<ServiceResponse<LoginResponseDTO>> Login(string email, string password, CancellationToken ct)
         {
             var response = new ServiceResponse<LoginResponseDTO>();
 
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower(), ct);
 
             if(user == null || user.Status == 0)
             {

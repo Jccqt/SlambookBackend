@@ -15,7 +15,7 @@ namespace SlambookBackend.Repository
             _db = db;
         }
 
-        public async Task<ServiceResponse<List<MiniProfileDTO>>> GetAllProfiles(int count)
+        public async Task<ServiceResponse<List<MiniProfileDTO>>> GetAllProfiles(int count, CancellationToken ct)
         {
             var response = new ServiceResponse<List<MiniProfileDTO>>();
 
@@ -31,7 +31,7 @@ namespace SlambookBackend.Repository
                     SlambookCount = p.Slambooks.Count()
                 })
                 .Take(count)
-                .ToListAsync();
+                .ToListAsync(ct);
 
             if(profiles.Count > 0)
             {
@@ -47,7 +47,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<MiniProfileDTO>> GetProfileByUsername(string username)
+        public async Task<ServiceResponse<MiniProfileDTO>> GetProfileByUsername(string username, CancellationToken ct)
         {
             var response = new ServiceResponse<MiniProfileDTO>();
 
@@ -62,7 +62,7 @@ namespace SlambookBackend.Repository
                     Username = p.Username,
                     ProfilePicture = $"/api/users/profile/{p.Id}/profile-picture",
                     SlambookCount = p.Slambooks.Count()
-                }).FirstOrDefaultAsync();
+                }).FirstOrDefaultAsync(ct);
 
             if (profile == null)
             {
@@ -78,7 +78,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<byte[]>> GetProfilePictureBytes(int userId)
+        public async Task<ServiceResponse<byte[]>> GetProfilePictureBytes(int userId, CancellationToken ct)
         {
             var response = new ServiceResponse<byte[]>();
 
@@ -86,7 +86,7 @@ namespace SlambookBackend.Repository
                 .AsNoTracking()
                 .Where(u => u.Id == userId)
                 .Select(u => u.ProfilePicture)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
 
             if (imageBytes == null || imageBytes.Length == 0)
             {
@@ -101,7 +101,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> UpdateProfile(int userId, string firstName, string lastName, string username, string bio, byte[] profilePictureBytes)
+        public async Task<ServiceResponse> UpdateProfile(int userId, string firstName, string lastName, string username, string bio, byte[] profilePictureBytes, CancellationToken ct)
         {
             var response = new ServiceResponse();
 
@@ -112,7 +112,7 @@ namespace SlambookBackend.Repository
                     .SetProperty(u => u.LastName, lastName)
                     .SetProperty(u => u.Username, username)
                     .SetProperty(u => u.Bio, bio)
-                    .SetProperty(u => u.ProfilePicture, u => profilePictureBytes ?? u.ProfilePicture));
+                    .SetProperty(u => u.ProfilePicture, u => profilePictureBytes ?? u.ProfilePicture), ct);
 
             if(affectedRow == 0)
             {

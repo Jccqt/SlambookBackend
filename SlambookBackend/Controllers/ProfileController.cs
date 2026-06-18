@@ -21,9 +21,9 @@ namespace SlambookBackend.Controllers
         /// Retrieves all mini profiles that can be used in homepage and members page.
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse>> GetAllProfiles([FromQuery] int count)
+        public async Task<ActionResult<ServiceResponse>> GetAllProfiles([FromQuery] int count, CancellationToken ct)
         {
-            var result = await _profileRepo.GetAllProfiles(count);
+            var result = await _profileRepo.GetAllProfiles(count, ct);
 
             return result.Success ? Ok(result) : NotFound(result);
         }
@@ -32,9 +32,9 @@ namespace SlambookBackend.Controllers
         /// Retrieves a mini profile using a username. This can be used in members page.
         /// </summary>
         [HttpGet("by-username/{username}")]
-        public async Task<ActionResult<ServiceResponse>> GetProfileByUsername([FromRoute] string username)
+        public async Task<ActionResult<ServiceResponse>> GetProfileByUsername([FromRoute] string username, CancellationToken ct)
         {
-            var result = await _profileRepo.GetProfileByUsername(username);
+            var result = await _profileRepo.GetProfileByUsername(username, ct);
 
             return result.Success ? Ok(result) : NotFound(result);
         }
@@ -43,14 +43,14 @@ namespace SlambookBackend.Controllers
         /// Retrieves the profile picture bytes that can be used by Glide or any other extension packages.
         /// </summary>
         [HttpGet("{userId}/profile-picture")]
-        public async Task<ActionResult<ServiceResponse>> GetProfilePictureBytes([FromRoute] int userId)
+        public async Task<ActionResult<ServiceResponse>> GetProfilePictureBytes([FromRoute] int userId, CancellationToken ct)
         {
             if(userId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
             }
 
-            var result = await _profileRepo.GetProfilePictureBytes(userId);
+            var result = await _profileRepo.GetProfilePictureBytes(userId, ct);
 
             return result.Success ? Ok(result) : NotFound(result);
         }
@@ -60,7 +60,7 @@ namespace SlambookBackend.Controllers
         /// </summary>
 
         [HttpPatch("update/{userId}")]
-        public async Task<ActionResult<ServiceResponse>> UpdateProfile([FromRoute] int userId, [FromForm] UpdateProfileDTO profile)
+        public async Task<ActionResult<ServiceResponse>> UpdateProfile([FromRoute] int userId, [FromForm] UpdateProfileDTO profile, CancellationToken ct)
         {
             if (!ModelState.IsValid)
             {
@@ -77,7 +77,7 @@ namespace SlambookBackend.Controllers
                 }
             }
 
-            var result = await _profileRepo.UpdateProfile(userId, profile.FirstName, profile.LastName, profile.Username, profile.Bio, profilePictureBytes);
+            var result = await _profileRepo.UpdateProfile(userId, profile.FirstName, profile.LastName, profile.Username, profile.Bio, profilePictureBytes, ct);
 
             return result.Success ? Ok(result) : BadRequest(result);
         }

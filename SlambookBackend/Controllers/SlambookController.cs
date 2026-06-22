@@ -23,14 +23,15 @@ namespace SlambookBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<ServiceResponse>> GetAllSlambooks(
             [FromQuery] int userId,
-            [FromQuery] int count)
+            [FromQuery] int count,
+            CancellationToken ct)
         {
             if(userId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid user ID." });
             }
 
-            var results = await _slambookRepo.GetAllSlambooks(count, userId);
+            var results = await _slambookRepo.GetAllSlambooks(count, userId, ct);
 
             return results.Success ? Ok(results) : NotFound(results);
         }
@@ -39,14 +40,14 @@ namespace SlambookBackend.Controllers
         /// Retrieves slambook details. Can also used this along with GetSlambookResponders to retrieve responders on this specific slambook.
         /// </summary>
         [HttpGet("{slambookId}")]
-        public async Task<ActionResult<ServiceResponse>> GetSlambookDetails([FromRoute] int slambookId)
+        public async Task<ActionResult<ServiceResponse>> GetSlambookDetails([FromRoute] int slambookId, CancellationToken ct)
         {
             if(slambookId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid slambook ID." });
             }
 
-            var result = await _slambookRepo.GetSlambookDetails(slambookId);
+            var result = await _slambookRepo.GetSlambookDetails(slambookId, ct);
 
             return result.Success ? Ok(result) : NotFound(result);
         }
@@ -55,14 +56,14 @@ namespace SlambookBackend.Controllers
         /// Retrieves responders list of specific slambook. This will return mini profiles similar to GetAllProfiles in ProfileController.
         /// </summary>
         [HttpGet("{slambookId}/responders")]
-        public async Task<ActionResult<ServiceResponse>> GetSlambookResponders([FromRoute] int slambookId)
+        public async Task<ActionResult<ServiceResponse>> GetSlambookResponders([FromRoute] int slambookId, CancellationToken ct)
         {
             if(slambookId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid slambook ID." });
             }
 
-            var result = await _slambookRepo.GetSlambookResponders(slambookId);
+            var result = await _slambookRepo.GetSlambookResponders(slambookId, ct);
 
             return result.Success ? Ok(result) : NotFound(result);
         }
@@ -71,14 +72,14 @@ namespace SlambookBackend.Controllers
         /// Retrieves slambook questions. This will return a list of questions and can be used for displaying the questions when giving response to the slambook.
         /// </summary>
         [HttpGet("{slambookId}/questions")]
-        public async Task<ActionResult<ServiceResponse>> GetSlambookQuestions([FromRoute] int slambookId)
+        public async Task<ActionResult<ServiceResponse>> GetSlambookQuestions([FromRoute] int slambookId, CancellationToken ct)
         {
             if (slambookId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid slambook ID." });
             }
 
-            var result = await _slambookRepo.GetSlambookQuestions(slambookId);
+            var result = await _slambookRepo.GetSlambookQuestions(slambookId, ct);
 
             return result.Success ? Ok(result) : NotFound(result);
         }
@@ -90,14 +91,15 @@ namespace SlambookBackend.Controllers
         [HttpGet("{slambookId}/response/{responderId}")]
         public async Task<ActionResult<ServiceResponse>> GetResponderAnswers(
             [FromRoute] int slambookId,
-            [FromRoute] int responderId)
+            [FromRoute] int responderId,
+            CancellationToken ct)
         {
             if(slambookId <= 0 || responderId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
             }
 
-            var result = await _slambookRepo.GetResponderAnswers(slambookId, responderId);
+            var result = await _slambookRepo.GetResponderAnswers(slambookId, responderId, ct);
 
             return result.Success ? Ok(result) : NotFound(result);
         }
@@ -108,14 +110,15 @@ namespace SlambookBackend.Controllers
         [HttpGet("{slambookId}/ownership")]
         public async Task<ActionResult<ServiceResponse>> CheckSlambookOwnership(
             [FromRoute] int slambookId,
-            [FromQuery] int responderId)
+            [FromQuery] int responderId,
+            CancellationToken ct)
         {
             if(slambookId <= 0 || responderId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
             }
 
-            var result = await _slambookRepo.CheckSlambookOwnership(slambookId, responderId);
+            var result = await _slambookRepo.CheckSlambookOwnership(slambookId, responderId, ct);
 
             return Ok(result);
         }
@@ -126,14 +129,15 @@ namespace SlambookBackend.Controllers
         [HttpGet("{slambookId}/has-responded")]
         public async Task<ActionResult<ServiceResponse>> CheckIfUserResponded(
             [FromRoute] int slambookId,
-            [FromQuery] int responderId)
+            [FromQuery] int responderId,
+            CancellationToken ct)
         {
             if (slambookId <= 0 || responderId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
             }
 
-            var result = await _slambookRepo.CheckIfUserResponded(slambookId, responderId);
+            var result = await _slambookRepo.CheckIfUserResponded(slambookId, responderId, ct);
 
             return Ok(result);
         }
@@ -142,9 +146,9 @@ namespace SlambookBackend.Controllers
         /// Used for creating a slambook.
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse>> CreateSlambook([FromBody] CreateSlambookDTO slambook)
+        public async Task<ActionResult<ServiceResponse>> CreateSlambook([FromBody] CreateSlambookDTO slambook, CancellationToken ct)
         {
-            var result = await _slambookRepo.CreateSlambook(slambook);
+            var result = await _slambookRepo.CreateSlambook(slambook, ct);
 
             return result.Success ? Ok(result) : BadRequest(result);
         }
@@ -153,9 +157,9 @@ namespace SlambookBackend.Controllers
         /// Used for submitting answers for a specific slambook.
         /// </summary>
         [HttpPost("answers")]
-        public async Task<ActionResult<ServiceResponse>> SubmitAnswers([FromBody] SubmitAnwersDTO answers)
+        public async Task<ActionResult<ServiceResponse>> SubmitAnswers([FromBody] SubmitAnwersDTO answers, CancellationToken ct)
         {
-            var result = await _slambookRepo.SubmitAnswers(answers);
+            var result = await _slambookRepo.SubmitAnswers(answers, ct);
 
             return result.Success ? Ok(result) : BadRequest(result);
         }
@@ -166,14 +170,15 @@ namespace SlambookBackend.Controllers
         [HttpPatch("{slambookId}/remove/{responderId}")]
         public async Task<ActionResult<ServiceResponse>> RemoveUserResponse(
             [FromRoute] int slambookId,
-            [FromRoute] int responderId)
+            [FromRoute] int responderId,
+            CancellationToken ct)
         {
             if(slambookId <= 0 || responderId <= 0)
             {
                 return BadRequest(new ServiceResponse { Message = "Invalid IDs." });
             }
 
-            var result = await _slambookRepo.RemoveUserResponse(slambookId, responderId);
+            var result = await _slambookRepo.RemoveUserResponse(slambookId, responderId, ct);
 
             return result.Success ? Ok(result) : BadRequest(result);
         }

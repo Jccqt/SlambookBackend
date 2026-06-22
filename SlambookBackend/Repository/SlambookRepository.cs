@@ -17,7 +17,7 @@ namespace SlambookBackend.Repository
             _db = db;
         }
 
-        public async Task<ServiceResponse<List<SlambookDTO>>> GetAllSlambooks(int count, int userId)
+        public async Task<ServiceResponse<List<SlambookDTO>>> GetAllSlambooks(int count, int userId, CancellationToken ct)
         {
             var response = new ServiceResponse<List<SlambookDTO>>();
 
@@ -39,7 +39,7 @@ namespace SlambookBackend.Repository
                 query = query.Take(count);
             }
 
-            var slambooks = await query.ToListAsync();
+            var slambooks = await query.ToListAsync(ct);
 
             if(slambooks.Count > 0)
             {
@@ -55,7 +55,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<SlambookDetailsDTO>> GetSlambookDetails(int slambookId)
+        public async Task<ServiceResponse<SlambookDetailsDTO>> GetSlambookDetails(int slambookId, CancellationToken ct)
         {
             var response = new ServiceResponse<SlambookDetailsDTO>();
 
@@ -68,7 +68,7 @@ namespace SlambookBackend.Repository
                     Description = s.Description,
                     CreatedDate = s.CreatedDate
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
 
             if (slambookDto == null)
             {
@@ -84,7 +84,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<List<MiniProfileDTO>>> GetSlambookResponders(int slambookId)
+        public async Task<ServiceResponse<List<MiniProfileDTO>>> GetSlambookResponders(int slambookId, CancellationToken ct)
         {
             var response = new ServiceResponse<List<MiniProfileDTO>>();
 
@@ -93,7 +93,7 @@ namespace SlambookBackend.Repository
                 .Where(a => a.Question!.SlambookId == slambookId && a.Status == 1)
                 .Select(a => a.ResponderId)
                 .Distinct()
-                .ToListAsync();
+                .ToListAsync(ct);
 
             if (!activeResponderIds.Any())
             {
@@ -116,7 +116,7 @@ namespace SlambookBackend.Repository
 
                     SlambookCount = p.Slambooks.Count()
                 })
-                .ToListAsync();
+                .ToListAsync(ct);
 
             response.Success = true;
             response.Message = $"Found {profiles.Count} responders.";
@@ -125,7 +125,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<SlambookQuestionsDTO>> GetSlambookQuestions(int slambookId)
+        public async Task<ServiceResponse<SlambookQuestionsDTO>> GetSlambookQuestions(int slambookId, CancellationToken ct)
         {
             var response = new ServiceResponse<SlambookQuestionsDTO>();
 
@@ -140,7 +140,7 @@ namespace SlambookBackend.Repository
                         QuestionId = q.Id,
                         QuestionText = q.QuestionText
                     }).ToList()
-                }).FirstOrDefaultAsync();
+                }).FirstOrDefaultAsync(ct);
 
             if(slambookQuestions == null)
             {
@@ -156,7 +156,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<ResponderSlambookResultDTO>> GetResponderAnswers(int slambookId, int responderId)
+        public async Task<ServiceResponse<ResponderSlambookResultDTO>> GetResponderAnswers(int slambookId, int responderId, CancellationToken ct)
         {
             var response = new ServiceResponse<ResponderSlambookResultDTO>();
 
@@ -170,7 +170,7 @@ namespace SlambookBackend.Repository
                     Username = u.Username,
                     ProfilePicture = $"/api/users/profile/{u.Id}/profile-picture",
                     SlambookCount = u.Slambooks.Count()
-                }).FirstOrDefaultAsync();
+                }).FirstOrDefaultAsync(ct);
 
             if(profile == null)
             {
@@ -188,7 +188,7 @@ namespace SlambookBackend.Repository
                         .Where(a => a.ResponderId == responderId)
                         .Select(a => a.AnswerText)
                         .FirstOrDefault()
-                }).ToListAsync();
+                }).ToListAsync(ct);
 
             response.Success = true;
             response.Message = "Responder's answer found.";
@@ -201,12 +201,12 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> CheckSlambookOwnership(int slambookId, int responderId)
+        public async Task<ServiceResponse> CheckSlambookOwnership(int slambookId, int responderId, CancellationToken ct)
         {
             var response = new ServiceResponse();
 
             bool isOwner = await _db.Slambooks
-                .AnyAsync(s => s.Id == slambookId && s.CreatorId == responderId);
+                .AnyAsync(s => s.Id == slambookId && s.CreatorId == responderId, ct);
 
             if (isOwner)
             {
@@ -221,14 +221,14 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> CheckIfUserResponded(int slambookId, int responderId)
+        public async Task<ServiceResponse> CheckIfUserResponded(int slambookId, int responderId, CancellationToken ct)
         {
             var response = new ServiceResponse();
 
             bool hasResponded = await _db.Answers
                 .AnyAsync(a => a.ResponderId == responderId
                 && a.Question.SlambookId == slambookId
-                && a.Status == 1);
+                && a.Status == 1, ct);
 
             if (hasResponded)
             {
@@ -243,7 +243,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook)
+        public async Task<ServiceResponse<int>> CreateSlambook(CreateSlambookDTO slambook, CancellationToken ct)
         {
             var response = new ServiceResponse<int>();
 
@@ -265,7 +265,7 @@ namespace SlambookBackend.Repository
 
             _db.Slambooks.Add(newSlambook);
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             response.Success = true;
             response.Message = "Slambook created successfully.";
@@ -274,7 +274,7 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> SubmitAnswers(SubmitAnwersDTO answers)
+        public async Task<ServiceResponse> SubmitAnswers(SubmitAnwersDTO answers, CancellationToken ct)
         {
             var response = new ServiceResponse();
 
@@ -293,7 +293,7 @@ namespace SlambookBackend.Repository
 
             _db.Answers.AddRange(newAnswers);
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             response.Success = true;
             response.Message = "Answers submitted successfully.";
@@ -301,14 +301,14 @@ namespace SlambookBackend.Repository
             return response;
         }
 
-        public async Task<ServiceResponse> RemoveUserResponse(int slambookId, int responderId)
+        public async Task<ServiceResponse> RemoveUserResponse(int slambookId, int responderId, CancellationToken ct)
         {
             var response = new ServiceResponse();
 
             var userAnswers = await _db.Answers
                 .Include(a => a.Question)
                 .Where(a => a.ResponderId == responderId && a.Question.SlambookId == slambookId && a.Status == 1)
-                .ToListAsync();
+                .ToListAsync(ct);
 
             if (!userAnswers.Any())
             {
@@ -321,7 +321,7 @@ namespace SlambookBackend.Repository
                 answer.Status = 0;
             }
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             response.Success = true;
             response.Message = "User's response has been removed.";

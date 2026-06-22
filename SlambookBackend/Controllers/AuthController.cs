@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SlambookBackend.DTO.Auth;
 using SlambookBackend.Interfaces;
 using SlambookBackend.Models;
@@ -9,6 +10,7 @@ namespace SlambookBackend.Controllers
 {
     [Route("api/auth")]
     [ApiController]
+    [EnableRateLimiting("FixedWindowPolicy")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _authRepo;

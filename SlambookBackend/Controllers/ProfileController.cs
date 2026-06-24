@@ -8,6 +8,7 @@ namespace SlambookBackend.Controllers
 {
     [Route("api/user/profile")]
     [ApiController]
+    [EnableRateLimiting("FixedWindowPolicy")]
     public class ProfileController : ControllerBase
     {
         private readonly IProfileRepository _profileRepo;

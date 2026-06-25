@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SlambookBackend.DTO.Profile;
 using SlambookBackend.Interfaces;
 using SlambookBackend.Models;

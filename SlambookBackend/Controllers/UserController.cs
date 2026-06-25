@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SlambookBackend.DTO.Users;
 using SlambookBackend.Interfaces;
 using SlambookBackend.Models;
@@ -8,6 +9,7 @@ namespace SlambookBackend.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [EnableRateLimiting("FixedWindowPolicy")]
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepo;

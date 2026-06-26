@@ -78,6 +78,37 @@ namespace SlambookBackend.Repository
             return response;
         }
 
+        public async Task<ServiceResponse<MiniProfileDTO>> GetProfileById(int userId, CancellationToken ct)
+        {
+            var response = new ServiceResponse<MiniProfileDTO>();
+
+            var profile = await _db.Users
+                .AsNoTracking()
+                .Where(p => p.Id == userId)
+                .Select(p => new MiniProfileDTO
+                {
+                    Id = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Username = p.Username,
+                    ProfilePicture = $"/api/users/profile/{p.Id}/profile-picture",
+                    SlambookCount = p.Slambooks.Count()
+                }).FirstOrDefaultAsync(ct);
+
+            if (profile == null)
+            {
+                response.Message = "No profile found.";
+            }
+            else
+            {
+                response.Success = true;
+                response.Message = "Profile found.";
+                response.Data = profile;
+            }
+
+            return response;
+        }
+
         public async Task<ServiceResponse<byte[]>> GetProfilePictureBytes(int userId, CancellationToken ct)
         {
             var response = new ServiceResponse<byte[]>();

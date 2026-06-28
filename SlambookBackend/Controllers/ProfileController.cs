@@ -42,6 +42,17 @@ namespace SlambookBackend.Controllers
         }
 
         /// <summary>
+        /// Retrieves a mini profile using user ID. This can be used in members page.
+        /// </summary>
+        [HttpGet("by-id/{userId}")]
+        public async Task<ActionResult<ServiceResponse>> GetProfileById([FromRoute] int userId, CancellationToken ct)
+        {
+            var result = await _profileRepo.GetProfileById(userId, ct);
+
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        /// <summary>
         /// Retrieves the profile picture bytes that can be used by Glide or any other extension packages.
         /// </summary>
         [HttpGet("{userId}/profile-picture")]

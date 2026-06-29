@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Slambook.UnitTests/Slambook.UnitTests.csproj" Id="e84390ee-7cfc-41ab-9ee0-0cc4ce8b5534" />
   <Project Path="SlambookBackend/SlambookBackend.csproj" />
 </Solution>

@@ -9,6 +9,7 @@ using SlambookBackend.Models;
 using Slambook.UnitTests.Helpers;
 using Slambook.UnitTests.DataGenerators;
 using SlambookBackend.DTO.Users;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Slambook.UnitTests.Repository
 {
@@ -38,6 +39,24 @@ namespace Slambook.UnitTests.Repository
             var returnedUsers = Assert.IsType<List<UserDTO>>(result.Data);
 
             Assert.Equal(10, returnedUsers.Count);
+        }
+
+        [Fact]
+        public async Task GetAllusers_WhenNoUsersFound_ShouldReturnNullData()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+
+            var repository = new UserRepository(context);
+
+            // Act
+            var result = await repository.GetAllUsers(CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("No users found.", result.Message);
+            Assert.Null(result.Data);
         }
     }
 }

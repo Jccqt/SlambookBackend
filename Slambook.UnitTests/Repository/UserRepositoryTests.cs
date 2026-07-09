@@ -58,5 +58,33 @@ namespace Slambook.UnitTests.Repository
             Assert.Equal("No users found.", result.Message);
             Assert.Null(result.Data);
         }
+
+        [Fact]
+        public async Task GetUserById_WhenUserFound_ShouldReturnUserDTO()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+
+            var user = _users.Generate(1);
+            user[0].FirstName = "Test";
+            user[0].LastName = "Test";
+            context.Add(user[0]);
+            await context.SaveChangesAsync();
+
+            var repository = new UserRepository(context);
+
+            // Act
+            var result = await repository.GetUserById(1, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+
+            var returnedUser = Assert.IsType<UserDTO>(result.Data);
+
+            Assert.Equal(user[0].Id, returnedUser.Id);
+            Assert.Equal(user[0].FirstName, returnedUser.FirstName);
+            Assert.Equal(user[0].LastName, returnedUser.LastName);
+        }
     }
 }

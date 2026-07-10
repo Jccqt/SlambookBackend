@@ -86,5 +86,23 @@ namespace Slambook.UnitTests.Repository
             Assert.Equal(user[0].FirstName, returnedUser.FirstName);
             Assert.Equal(user[0].LastName, returnedUser.LastName);
         }
+
+        [Fact]
+        public async Task GetUserById_WhenUserNotFound_ShouldReturnNullData()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+
+            var repository = new UserRepository(context);
+
+            // Act
+            var result = await repository.GetUserById(1, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("User not found.", result.Message);
+            Assert.Null(result.Data);
+        }
     }
 }

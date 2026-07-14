@@ -129,5 +129,23 @@ namespace Slambook.UnitTests.Repository
 
             Assert.Equal(user[0].Username, returnedUsername);
         }
+
+        [Fact]
+        public async Task GetUsernameById_WhenUserDoesNotExists_ShouldReturnNull()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+
+            var repository = new UserRepository(context);
+
+            // Act
+            var result = await repository.GetUsernameById(1, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("User not found.", result.Message);
+            Assert.Null(result.Data);
+        }
     }
 }

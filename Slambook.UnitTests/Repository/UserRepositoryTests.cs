@@ -147,5 +147,40 @@ namespace Slambook.UnitTests.Repository
             Assert.Equal("User not found.", result.Message);
             Assert.Null(result.Data);
         }
+
+        [Fact]
+        public async Task AddUser_WhenEmailDoesNotExist_ShouldAddUserAndReturnSuccess()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+            var repository = new UserRepository(context);
+
+            var newUserDto = new AddUserDTO
+            {
+                FirstName = "Jane",
+                LastName = "Doe",
+                Email = "jane.doe@example.com",
+                Password = "StrongPassword123!"
+            };
+
+            // Act
+            var result = await repository.AddUser(newUserDto, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+            Assert.Equal("Account created successfully.", result.Message);
+
+            var savedUser = context.Users.FirstOrDefault(u => u.Email == newUserDto.Email);
+            Assert.NotNull(savedUser);
+            Assert.Equal(newUserDto.FirstName, savedUser.FirstName);
+            Assert.Equal(newUserDto.LastName, savedUser.LastName);
+            Assert.Equal(0, savedUser.LoginCount);
+            Assert.Equal(1, savedUser.Status);
+
+            Assert.NotNull(savedUser.Salt);
+            Assert.NotNull(savedUser.Password);
+            Assert.NotEqual(newUserDto.Password, savedUser.Password);
+        }
     }
 }

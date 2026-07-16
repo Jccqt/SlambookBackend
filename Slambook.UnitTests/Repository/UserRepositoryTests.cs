@@ -182,5 +182,38 @@ namespace Slambook.UnitTests.Repository
             Assert.NotNull(savedUser.Password);
             Assert.NotEqual(newUserDto.Password, savedUser.Password);
         }
+
+        [Fact]
+        public async Task AddUser_WhenEmailAlreadyExists_ShouldReturnError()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+
+            var existingUser = _users.Generate(1)[0];
+            existingUser.Email = "existing.email@example.com";
+            context.Users.Add(existingUser);
+            await context.SaveChangesAsync();
+
+            var repository = new UserRepository(context);
+
+            var duplicateUserDto = new AddUserDTO
+            {
+                FirstName = "Another",
+                LastName = "Name",
+                Email = "existing.email@example.com",
+                Password = "DifferentPassword123!"
+            };
+
+            // Act
+            var result = await repository.AddUser(duplicateUserDto, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("Account already exists.", result.Message);
+
+            var userCount = context.Users.Count();
+            Assert.Equal(1, userCount);
+        }
     }
 }

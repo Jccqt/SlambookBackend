@@ -215,5 +215,31 @@ namespace Slambook.UnitTests.Repository
             var userCount = context.Users.Count();
             Assert.Equal(1, userCount);
         }
+
+        [Fact]
+        public async Task UpdateLoginCount_WhenUserExists_ShouldIncrementCountAndReturnSuccess()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+
+            var user = _users.Generate(1)[0];
+            user.LoginCount = 5;
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var repository = new UserRepository(context);
+
+            // Act
+            var result = await repository.UpdateLoginCount(user.Id, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+            Assert.Equal("Successfully updated login count.", result.Message);
+
+            var updatedUser = await context.Users.FindAsync(user.Id);
+            Assert.NotNull(updatedUser);
+            Assert.Equal(6, updatedUser.LoginCount);
+        }
     }
 }

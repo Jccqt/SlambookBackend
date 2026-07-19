@@ -241,5 +241,23 @@ namespace Slambook.UnitTests.Repository
             Assert.NotNull(updatedUser);
             Assert.Equal(6, updatedUser.LoginCount);
         }
+
+        [Fact]
+        public async Task UpdateLoginCount_WhenUserDoesNotExist_ShouldReturnError()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+            var repository = new UserRepository(context);
+
+            var nonExistentUserId = 999;
+
+            // Act
+            var result = await repository.UpdateLoginCount(nonExistentUserId, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("Failed to update login count. User not found.", result.Message);
+        }
     }
 }

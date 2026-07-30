@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Slambook.UnitTests.DataGenerators;
+using Slambook.UnitTests.Helpers;
+using SlambookBackend.DTO.Users;
+using SlambookBackend.Models;
+using SlambookBackend.Repository;
+using SlambookBackend.Tools;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using SlambookBackend.Repository;
-using SlambookBackend.Models;
-using Slambook.UnitTests.Helpers;
-using Slambook.UnitTests.DataGenerators;
-using SlambookBackend.DTO.Users;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Slambook.UnitTests.Repository
 {
@@ -258,6 +259,49 @@ namespace Slambook.UnitTests.Repository
             Assert.NotNull(result);
             Assert.False(result.Success);
             Assert.Equal("Failed to update login count. User not found.", result.Message);
+        }
+
+        [Fact]
+        public async Task UpdatePassword_WhenValidOldPassword_ShouldUpdateAndReturnSuccess()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+
+            var user = _users.Generate(1)[0];
+
+            user.Salt = Crypt.GenerateSalt();
+            user.Password = Crypt.HashPassword("CorrectOldPassword123!", user.Salt);
+
+            var oldSalt = user.Salt;
+            var oldPasswordHash = user.Password;
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var repository = new UserRepository(context);
+
+            var updateDto = new UpdatePasswordDTO
+            {
+                OldPassword = "CorrectOldPassword123!", 
+                NewPassword = "BrandNewPassword123!"
+            };
+
+            // Act
+            var result = await repository.UpdatePassword(user.Id, updateDto, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+            Assert.Equal("Password changed successfully.", result.Message);
+
+            var updatedUser = await context.Users.FindAsync(user.Id);
+            Assert.NotNull(updatedUser);
+
+            Assert.NotEqual(oldSalt, updatedUser.Salt);
+            Assert.NotEqual(oldPasswordHash, updatedUser.Password);
+
+            var expectedNewHash = Crypt.HashPassword("BrandNewPassword123!", updatedUser.Salt);
+            Assert.Equal(expectedNewHash, updatedUser.Password);
         }
     }
 }

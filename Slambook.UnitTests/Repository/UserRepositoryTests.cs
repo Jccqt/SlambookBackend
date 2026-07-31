@@ -303,5 +303,36 @@ namespace Slambook.UnitTests.Repository
             var expectedNewHash = Crypt.HashPassword("BrandNewPassword123!", updatedUser.Salt);
             Assert.Equal(expectedNewHash, updatedUser.Password);
         }
+
+        [Fact]
+        public async Task UpdatePassword_WhenOldPasswordIsInvalid_ShouldReturnInvalidOldPassword()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+
+            var user = _users.Generate(1)[0];
+
+            user.Salt = Crypt.GenerateSalt();
+            user.Password = Crypt.HashPassword("CorrectOldPassword123!", user.Salt);
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var repository = new UserRepository(context);
+
+            var updateDto = new UpdatePasswordDTO
+            {
+                OldPassword = "WrongPassword123!",
+                NewPassword = "NewPassword123!"
+            };
+
+            // Act
+            var result = await repository.UpdatePassword(user.Id, updateDto, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("Invalid old password.", result.Message);
+        }
     }
 }

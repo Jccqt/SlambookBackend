@@ -334,5 +334,28 @@ namespace Slambook.UnitTests.Repository
             Assert.False(result.Success);
             Assert.Equal("Invalid old password.", result.Message);
         }
+
+        [Fact]
+        public async Task UpdatePassword_WhenUserNotFound_ShouldReturnUserNotFound()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+            var repository = new UserRepository(context);
+
+            var nonExistentUserId = 999;
+            var updateDto = new UpdatePasswordDTO
+            {
+                OldPassword = "SomePassword123!",
+                NewPassword = "NewPassword123!"
+            };
+
+            // Act
+            var result = await repository.UpdatePassword(nonExistentUserId, updateDto, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("User not found.", result.Message);
+        }
     }
 }

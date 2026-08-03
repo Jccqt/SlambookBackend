@@ -171,6 +171,27 @@ namespace Slambook.UnitTests.Repository
         }
 
         [Fact]
+        public async Task GetUsernameById_WhenUserExistsButUsernameIsNull_ShouldReturnUserNotFound()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+            var user = _users.Generate(1)[0];
+            user.Username = null;
+            context.Add(user);
+            await context.SaveChangesAsync();
+
+            var repository = new UserRepository(context);
+
+            // Act
+            var result = await repository.GetUsernameById(user.Id, CancellationToken.None);
+
+            // Assert
+            Assert.False(result.Success);
+            Assert.Equal("User not found.", result.Message);
+            Assert.Null(result.Data);
+        }
+
+        [Fact]
         public async Task AddUser_WhenEmailDoesNotExist_ShouldAddUserAndReturnSuccess()
         {
             // Arrange

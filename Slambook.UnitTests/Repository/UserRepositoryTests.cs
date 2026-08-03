@@ -107,6 +107,27 @@ namespace Slambook.UnitTests.Repository
         }
 
         [Fact]
+        public async Task GetUserById_WhenUserFound_ShouldCorrectlyFormatProfilePictureUrl()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+            var user = _users.Generate(1)[0];
+            user.Id = 99;
+
+            context.Add(user);
+            await context.SaveChangesAsync();
+
+            var repository = new UserRepository(context);
+
+            // Act
+            var result = await repository.GetUserById(99, CancellationToken.None);
+
+            // Assert
+            var returnedUser = Assert.IsType<UserDTO>(result.Data);
+            Assert.Equal("/api/users/profile/99/profile-picture", returnedUser.ProfilePicture);
+        }
+
+        [Fact]
         public async Task GetUsernameById_WhenUserExists_ShouldReturnUsername()
         {
             // Arrange

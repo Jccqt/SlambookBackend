@@ -61,6 +61,21 @@ namespace Slambook.UnitTests.Repository
         }
 
         [Fact]
+        public async Task GetAllUsers_WhenCancellationTokenIsTriggered_ShouldThrowOperationCanceledException()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+            var repository = new UserRepository(context);
+
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // Act & Assert
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+                repository.GetAllUsers(cts.Token));
+        }
+
+        [Fact]
         public async Task GetUserById_WhenUserFound_ShouldReturnUserDTO()
         {
             // Arrange

@@ -186,12 +186,12 @@ namespace Slambook.UnitTests.Repository
         }
 
         [Fact]
-        public async Task GetUsernameById_WhenUserExistsButUsernameIsNull_ShouldReturnUserNotFound()
+        public async Task GetUsernameById_WhenUserExistsButUsernameIsEmpty_ShouldReturnUserNotFound()
         {
             // Arrange
             using var context = DbContextHelper.GetInMemoryContext();
             var user = _users.Generate(1)[0];
-            user.Username = null;
+            user.Username = string.Empty;
             context.Add(user);
             await context.SaveChangesAsync();
 

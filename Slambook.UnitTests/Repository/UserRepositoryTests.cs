@@ -275,6 +275,34 @@ namespace Slambook.UnitTests.Repository
         }
 
         [Fact]
+        public async Task AddUser_WhenEmailExistsWithDifferentCase_ShouldReturnError()
+        {
+            // Arrange
+            using var context = DbContextHelper.GetInMemoryContext();
+            var existingUser = _users.Generate(1)[0];
+            existingUser.Email = "john.doe@example.com";
+            context.Users.Add(existingUser);
+            await context.SaveChangesAsync();
+
+            var repository = new UserRepository(context);
+
+            var duplicateUserDto = new AddUserDTO
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "JOHN.DOE@EXAMPLE.COM", // Different case
+                Password = "Password123!"
+            };
+
+            // Act
+            var result = await repository.AddUser(duplicateUserDto, CancellationToken.None);
+
+            // Assert
+            Assert.False(result.Success);
+            Assert.Equal("Account already exists.", result.Message);
+        }
+
+        [Fact]
         public async Task UpdateLoginCount_WhenUserExists_ShouldIncrementCountAndReturnSuccess()
         {
             // Arrange

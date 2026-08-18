@@ -12,6 +12,10 @@ namespace Slambook.UnitTests.DataGenerators
     {
         public UserFaker()
         {
+            // Fixed seed keeps generated data identical between runs, so a failing
+            // test can always be reproduced
+            UseSeed(1337);
+
             RuleFor(u => u.Id, f => f.IndexFaker + 1);
             RuleFor(u => u.FirstName, f => f.Name.FirstName());
             RuleFor(u => u.LastName, f => f.Name.LastName());

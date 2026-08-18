@@ -105,8 +105,12 @@ namespace SlambookBackend.Repository
         {
             var response = new ServiceResponse();
 
+            // Emails are matched case-insensitively so registration agrees with
+            // AuthRepository.Login, which also lowercases both sides
+            string normalizedEmail = user.Email.ToLower();
+
             bool isExists = await _db.Users
-                .AnyAsync(u => u.Email == user.Email, ct);
+                .AnyAsync(u => u.Email.ToLower() == normalizedEmail, ct);
 
             if (isExists)
             {

@@ -1,4 +1,5 @@
-﻿using Slambook.UnitTests.DataGenerators;
+﻿using Microsoft.EntityFrameworkCore;
+using Slambook.UnitTests.DataGenerators;
 using Slambook.UnitTests.Helpers;
 using SlambookBackend.Context;
 using SlambookBackend.DTO.Users;
@@ -729,6 +730,34 @@ namespace Slambook.UnitTests.Repository
             // Assert
             Assert.False(result.Success);
             Assert.Equal(7, _context.Users.Single(u => u.Id == user.Id).LoginCount);
+        }
+
+        [Fact]
+        public async Task UpdateLoginCount_WhenSaveChangesAffectsNoRows_ShouldReturnError()
+        {
+            // Arrange
+            // A no-tracking context makes the repository's own query return a detached user,
+            // so the increment never reaches the change tracker and SaveChangesAsync reports
+            // zero affected rows, which is the only way into that branch
+            using var untrackedContext = DbContextHelper.GetInMemoryContext(QueryTrackingBehavior.NoTracking);
+            var repository = new UserRepository(untrackedContext);
+
+            var user = _users.Generate(1)[0];
+            user.LoginCount = 5;
+            untrackedContext.Users.Add(user);
+            await untrackedContext.SaveChangesAsync();
+
+            // Add() leaves the seeded instance tracked, so detach it to keep the context clean
+            untrackedContext.Entry(user).State = EntityState.Detached;
+
+            // Act
+            var result = await repository.UpdateLoginCount(user.Id, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("Failed to update login count.", result.Message);
+            Assert.Equal(5, untrackedContext.Users.Single(u => u.Id == user.Id).LoginCount);
         }
 
         [Fact]

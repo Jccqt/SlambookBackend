@@ -30,7 +30,7 @@ namespace SlambookBackend.Repository
                     LastName = u.LastName,
                     Username = u.Username,
                     Bio = u.Bio,
-                    ProfilePicture = $"/api/users/profile/{u.Id}/profile-picture"
+                    ProfilePicture = $"/api/user/profile/{u.Id}/profile-picture"
                 }).ToListAsync(ct);
 
             if(users.Count > 0)
@@ -66,7 +66,7 @@ namespace SlambookBackend.Repository
                     LastName = user.LastName,
                     Username = user.Username,
                     Bio = user.Bio,
-                    ProfilePicture = $"/api/users/profile/{user.Id}/profile-picture"
+                    ProfilePicture = $"/api/user/profile/{user.Id}/profile-picture"
                 };
             }
             else

@@ -99,7 +99,7 @@ namespace Slambook.UnitTests.Repository
             Assert.Equal("Lovelace", returnedUser.LastName);
             Assert.Equal("ada", returnedUser.Username);
             Assert.Equal("Writes algorithms.", returnedUser.Bio);
-            Assert.Equal($"/api/users/profile/{user.Id}/profile-picture", returnedUser.ProfilePicture);
+            Assert.Equal($"/api/user/profile/{user.Id}/profile-picture", returnedUser.ProfilePicture);
         }
 
         [Fact]
@@ -237,7 +237,7 @@ namespace Slambook.UnitTests.Repository
 
             // Assert
             var returnedUser = Assert.IsType<UserDTO>(result.Data);
-            Assert.Equal("/api/users/profile/99/profile-picture", returnedUser.ProfilePicture);
+            Assert.Equal("/api/user/profile/99/profile-picture", returnedUser.ProfilePicture);
         }
 
         [Fact]
@@ -253,7 +253,7 @@ namespace Slambook.UnitTests.Repository
 
             // Assert
             Assert.True(result.Success);
-            Assert.Equal($"/api/users/profile/{user.Id}/profile-picture", result.Data!.ProfilePicture);
+            Assert.Equal($"/api/user/profile/{user.Id}/profile-picture", result.Data!.ProfilePicture);
         }
 
         [Fact]

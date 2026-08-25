@@ -112,7 +112,7 @@ namespace SlambookBackend.Repository
                     FirstName = p.FirstName,
                     LastName = p.LastName,
                     Username = p.Username,
-                    ProfilePicture = $"/api/users/profile/{p.Id}/profile-picture",
+                    ProfilePicture = $"/api/user/profile/{p.Id}/profile-picture",
 
                     SlambookCount = p.Slambooks.Count()
                 })
@@ -168,7 +168,7 @@ namespace SlambookBackend.Repository
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     Username = u.Username,
-                    ProfilePicture = $"/api/users/profile/{u.Id}/profile-picture",
+                    ProfilePicture = $"/api/user/profile/{u.Id}/profile-picture",
                     SlambookCount = u.Slambooks.Count()
                 }).FirstOrDefaultAsync(ct);
 

@@ -84,5 +84,49 @@ namespace Slambook.UnitTests.Repository
         }
 
         #endregion
+
+        #region GetSlambookDetails
+
+        [Fact]
+        public async Task GetSlambookDetails_WhenSlambookFound_ShouldReturnSlambookDetailsDTO()
+        {
+            // Arrange
+            var createdDate = new DateOnly(2026, 9, 23);
+            var slambook = await SeedSlambook(s =>
+            {
+                s.Title = "My Slambook";
+                s.Description = "A slambook for my friends.";
+                s.CreatedDate = createdDate;
+            });
+
+            // Act
+            var result = await _repository.GetSlambookDetails(slambook.Id, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+            Assert.Equal("Slambook details found.", result.Message);
+
+            var details = Assert.IsType<SlambookDetailsDTO>(result.Data);
+            Assert.Equal(slambook.Id, details.Id);
+            Assert.Equal("My Slambook", details.Title);
+            Assert.Equal("A slambook for my friends.", details.Description);
+            Assert.Equal(createdDate, details.CreatedDate);
+        }
+
+        [Fact]
+        public async Task GetSlambookDetails_WhenSlambookNotFound_ShouldReturnNullDataAndSuccessFalse()
+        {
+            // Act
+            var result = await _repository.GetSlambookDetails(999, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("Slambook details not found.", result.Message);
+            Assert.Null(result.Data);
+        }
+
+        #endregion
     }
 }

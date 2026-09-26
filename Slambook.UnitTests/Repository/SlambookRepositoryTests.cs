@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Slambook.UnitTests.DataGenerators;
 using Slambook.UnitTests.Helpers;
 using SlambookBackend.Context;
+using SlambookBackend.DTO.Profile;
 using SlambookBackend.DTO.Slambook;
 using SlambookBackend.Models;
 using SlambookBackend.Repository;
@@ -81,6 +82,166 @@ namespace Slambook.UnitTests.Repository
             Assert.False(result.Success);
             Assert.Equal("No slambook found.", result.Message);
             Assert.Null(result.Data);
+        }
+
+        #endregion
+
+        #region GetSlambookResponders
+
+        [Fact]
+        public async Task GetSlambookResponders_WhenNoActiveRespondersFound_ShouldReturnEmptyList()
+        {
+            // Arrange
+            const int slambookId = 42;
+            var targetQuestion = new Questions
+            {
+                Id = 1,
+                SlambookId = slambookId,
+                QuestionText = "What is your favorite color?"
+            };
+            var otherQuestion = new Questions
+            {
+                Id = 2,
+                SlambookId = 99,
+                QuestionText = "What is your favorite food?"
+            };
+
+            _context.Questions.AddRange(targetQuestion, otherQuestion);
+            _context.Answers.AddRange(
+                new Answers
+                {
+                    Id = 1,
+                    QuestionId = targetQuestion.Id,
+                    ResponderId = 10,
+                    AnswerText = "Blue",
+                    Status = 0
+                },
+                new Answers
+                {
+                    Id = 2,
+                    QuestionId = otherQuestion.Id,
+                    ResponderId = 11,
+                    AnswerText = "Pizza",
+                    Status = 1
+                });
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.GetSlambookResponders(
+                slambookId,
+                CancellationToken.None);
+
+            // Assert
+            Assert.True(result.Success);
+            Assert.Equal("No responders found.", result.Message);
+
+            var responders = Assert.IsType<List<MiniProfileDTO>>(result.Data);
+            Assert.Empty(responders);
+        }
+
+        [Fact]
+        public async Task GetSlambookResponders_WhenActiveRespondersFound_ShouldReturnDistinctProjectedProfiles()
+        {
+            // Arrange
+            const int slambookId = 42;
+            var firstResponder = new Users
+            {
+                Id = 10,
+                FirstName = "Ada",
+                LastName = "Lovelace",
+                Username = "ada",
+                Slambooks = new List<Slambooks>()
+            };
+            var secondResponder = new Users
+            {
+                Id = 11,
+                FirstName = "Grace",
+                LastName = "Hopper",
+                Username = "grace",
+                Slambooks = new List<Slambooks>()
+            };
+            var inactiveResponder = new Users
+            {
+                Id = 12,
+                FirstName = "Inactive",
+                LastName = "Responder",
+                Username = "inactive",
+                Slambooks = new List<Slambooks>()
+            };
+            var otherSlambookResponder = new Users
+            {
+                Id = 13,
+                FirstName = "Other",
+                LastName = "Slambook",
+                Username = "other",
+                Slambooks = new List<Slambooks>()
+            };
+
+            _context.Users.AddRange(
+                firstResponder,
+                secondResponder,
+                inactiveResponder,
+                otherSlambookResponder);
+            _context.Slambooks.AddRange(
+                new Slambooks { Id = 101, CreatorId = firstResponder.Id, Title = "Ada 1" },
+                new Slambooks { Id = 102, CreatorId = firstResponder.Id, Title = "Ada 2" },
+                new Slambooks { Id = 103, CreatorId = secondResponder.Id, Title = "Grace 1" });
+
+            var firstQuestion = new Questions
+            {
+                Id = 201,
+                SlambookId = slambookId,
+                QuestionText = "Question 1"
+            };
+            var secondQuestion = new Questions
+            {
+                Id = 202,
+                SlambookId = slambookId,
+                QuestionText = "Question 2"
+            };
+            var otherQuestion = new Questions
+            {
+                Id = 203,
+                SlambookId = 99,
+                QuestionText = "Other slambook question"
+            };
+            _context.Questions.AddRange(firstQuestion, secondQuestion, otherQuestion);
+            _context.Answers.AddRange(
+                new Answers { Id = 301, QuestionId = firstQuestion.Id, ResponderId = firstResponder.Id, Status = 1 },
+                new Answers { Id = 302, QuestionId = secondQuestion.Id, ResponderId = firstResponder.Id, Status = 1 },
+                new Answers { Id = 303, QuestionId = firstQuestion.Id, ResponderId = secondResponder.Id, Status = 1 },
+                new Answers { Id = 304, QuestionId = firstQuestion.Id, ResponderId = inactiveResponder.Id, Status = 0 },
+                new Answers { Id = 305, QuestionId = otherQuestion.Id, ResponderId = otherSlambookResponder.Id, Status = 1 });
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.GetSlambookResponders(
+                slambookId,
+                CancellationToken.None);
+
+            // Assert
+            Assert.True(result.Success);
+            Assert.Equal("Found 2 responders.", result.Message);
+
+            var responders = Assert.IsType<List<MiniProfileDTO>>(result.Data);
+            Assert.Equal(2, responders.Count);
+
+            var ada = Assert.Single(responders, responder => responder.Id == firstResponder.Id);
+            Assert.Equal("Ada", ada.FirstName);
+            Assert.Equal("Lovelace", ada.LastName);
+            Assert.Equal("ada", ada.Username);
+            Assert.Equal("/api/user/profile/10/profile-picture", ada.ProfilePicture);
+            Assert.Equal(2, ada.SlambookCount);
+
+            var grace = Assert.Single(responders, responder => responder.Id == secondResponder.Id);
+            Assert.Equal("Grace", grace.FirstName);
+            Assert.Equal("Hopper", grace.LastName);
+            Assert.Equal("grace", grace.Username);
+            Assert.Equal("/api/user/profile/11/profile-picture", grace.ProfilePicture);
+            Assert.Equal(1, grace.SlambookCount);
+
+            Assert.DoesNotContain(responders, responder => responder.Id == inactiveResponder.Id);
+            Assert.DoesNotContain(responders, responder => responder.Id == otherSlambookResponder.Id);
         }
 
         #endregion

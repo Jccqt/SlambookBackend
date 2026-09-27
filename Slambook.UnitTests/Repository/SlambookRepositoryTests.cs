@@ -86,6 +86,93 @@ namespace Slambook.UnitTests.Repository
 
         #endregion
 
+        #region GetSlambookQuestions
+
+        [Fact]
+        public async Task GetSlambookQuestions_WhenSlambookFound_ShouldReturnProjectedQuestions()
+        {
+            // Arrange
+            var slambook = await SeedSlambook(s =>
+            {
+                s.Title = "Friends Forever";
+                s.Questions = new List<Questions>
+                {
+                    new Questions
+                    {
+                        Id = 101,
+                        QuestionText = "What is your favorite memory?"
+                    },
+                    new Questions
+                    {
+                        Id = 102,
+                        QuestionText = "Where do you see yourself in five years?"
+                    }
+                };
+            });
+
+            // Act
+            var result = await _repository.GetSlambookQuestions(
+                slambook.Id,
+                CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+            Assert.Equal("Slambook questions found.", result.Message);
+
+            var data = Assert.IsType<SlambookQuestionsDTO>(result.Data);
+            Assert.Equal(slambook.Id, data.SlambookId);
+            Assert.Equal("Friends Forever", data.Title);
+            Assert.Collection(
+                data.Questions.OrderBy(question => question.QuestionId),
+                question =>
+                {
+                    Assert.Equal(101, question.QuestionId);
+                    Assert.Equal("What is your favorite memory?", question.QuestionText);
+                },
+                question =>
+                {
+                    Assert.Equal(102, question.QuestionId);
+                    Assert.Equal("Where do you see yourself in five years?", question.QuestionText);
+                });
+        }
+
+        [Fact]
+        public async Task GetSlambookQuestions_WhenSlambookHasNoQuestions_ShouldReturnEmptyQuestionList()
+        {
+            // Arrange
+            var slambook = await SeedSlambook(s => s.Title = "New Slambook");
+
+            // Act
+            var result = await _repository.GetSlambookQuestions(
+                slambook.Id,
+                CancellationToken.None);
+
+            // Assert
+            Assert.True(result.Success);
+            Assert.Equal("Slambook questions found.", result.Message);
+
+            var data = Assert.IsType<SlambookQuestionsDTO>(result.Data);
+            Assert.Equal(slambook.Id, data.SlambookId);
+            Assert.Equal("New Slambook", data.Title);
+            Assert.Empty(data.Questions);
+        }
+
+        [Fact]
+        public async Task GetSlambookQuestions_WhenSlambookNotFound_ShouldReturnNullDataAndSuccessFalse()
+        {
+            // Act
+            var result = await _repository.GetSlambookQuestions(999, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("Slambook not found.", result.Message);
+            Assert.Null(result.Data);
+        }
+
+        #endregion
+
         #region GetSlambookResponders
 
         [Fact]

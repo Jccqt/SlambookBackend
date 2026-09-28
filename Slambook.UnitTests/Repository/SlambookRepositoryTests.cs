@@ -86,6 +86,49 @@ namespace Slambook.UnitTests.Repository
 
         #endregion
 
+        #region CheckSlambookOwnership
+
+        [Fact]
+        public async Task CheckSlambookOwnership_WhenResponderIsCreator_ShouldReturnSuccessTrue()
+        {
+            // Arrange
+            const int creatorId = 42;
+            var slambook = await SeedSlambook(s => s.CreatorId = creatorId);
+
+            // Act
+            var result = await _repository.CheckSlambookOwnership(
+                slambook.Id,
+                creatorId,
+                CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+            Assert.Equal("This user is the owner of this slambook.", result.Message);
+        }
+
+        [Fact]
+        public async Task CheckSlambookOwnership_WhenResponderIsNotCreator_ShouldReturnSuccessFalse()
+        {
+            // Arrange
+            const int creatorId = 42;
+            const int responderId = 99;
+            var slambook = await SeedSlambook(s => s.CreatorId = creatorId);
+
+            // Act
+            var result = await _repository.CheckSlambookOwnership(
+                slambook.Id,
+                responderId,
+                CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.False(result.Success);
+            Assert.Equal("This user is not the owner of this slambook.", result.Message);
+        }
+
+        #endregion
+
         #region GetSlambookQuestions
 
         [Fact]
